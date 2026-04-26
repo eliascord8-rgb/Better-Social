@@ -33,10 +33,17 @@ function AdminPanel() {
     }
   }, [me, navigate])
 
-  const [activeTab, setActiveTab] = React.useState<'users' | 'transactions' | 'mail' | 'support' | 'smm' | 'coupons'>(me?.role === 'moderator' ? 'support' : 'users')
+  const [activeTab, setActiveTab] = React.useState<'users' | 'transactions' | 'mail' | 'support' | 'smm' | 'coupons' | 'payments'>(me?.role === 'moderator' ? 'support' : 'users')
   const [mailSubject, setMailSubject] = React.useState('')
   const [mailMessage, setMailMessage] = React.useState('')
   const [isSendingMail, setIsSendingMail] = React.useState(false)
+
+  // Payment Config State
+  const paymentConfigs = useQuery(api.payments.getAdminConfigs)
+  const savePaymentConfig = useMutation(api.payments.saveConfig)
+  const [editingProvider, setEditingProvider] = React.useState<string | null>(null)
+  const [configFields, setConfigFields] = React.useState<Record<string, string>>({})
+  const [isProviderActive, setIsProviderActive] = React.useState(false)
 
   // Coupon Generator State
   const [couponAmount, setCouponAmount] = React.useState(10)
@@ -158,8 +165,14 @@ function AdminPanel() {
               >
                 Coupon Generator
               </button>
-            </>
-          )}
+              <button
+                onClick={() => { setActiveTab('payments'); setIsSidebarOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${activeTab === 'payments' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
+              >
+                Payment Methods
+              </button>
+              </>
+              )}
 
           <button 
             onClick={() => { setActiveTab('support'); setIsSidebarOpen(false); }}
@@ -583,9 +596,129 @@ function AdminPanel() {
                   )}
                </div>
             </div>
-          )}
-        </div>
-      </main>
+            )}
+
+            {activeTab === 'payments' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-8 shadow-2xl space-y-6">
+                <h2 className="text-xl font-black uppercase italic tracking-tighter">Active Gateways</h2>
+                <div className="space-y-4">
+                  {['paypal', 'payeer', 'coinpayments', 'stripe', 'skrill'].map((provider) => {
+                    const cfg = paymentConfigs?.find(c => c.provider === provider)
+                    return (
+                      <div key={provider} className="flex items-center justify-between p-4 bg-black border border-neutral-800 rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${cfg?.isActive ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-neutral-800'}`} />
+                          <span className="font-black uppercase tracking-widest text-sm italic">{provider}</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setEditingProvider(provider)
+                            setConfigFields(cfg?.config || {})
+                            setIsProviderActive(cfg?.isActive || false)
+                          }}
+                          className="bg-white/5 hover:bg-white/10 px-4 py-1.5 rounded text-[10px] font-black uppercase transition-all"
+                        >
+                          Configure
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+                <p className="text-[10px] text-indigo-400 font-bold uppercase mb-1">Webhook URLs</p>
+                <p className="text-[9px] text-neutral-500 font-mono">PayPal: /api/payments/paypal</p>
+                <p className="text-[9px] text-neutral-500 font-mono">Payeer: /api/payments/payeer</p>
+                <p className="text-[9px] text-neutral-500 font-mono">Skrill: /api/payments/skrill</p>
+                <p className="text-[9px] text-neutral-500 font-mono">CoinPayments: /api/payments/coinpayments</p>
+              </div>
+              </div>
+
+              {editingProvider && (
+                <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-8 shadow-2xl space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-black uppercase italic tracking-tighter text-indigo-400">{editingProvider} Keys</h2>
+                    <button onClick={() => setEditingProvider(null)} className="text-neutral-600 hover:text-white">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {editingProvider === 'paypal' && (
+                      <>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">Client ID</label>
+                          <input value={configFields.clientId || ''} onChange={(e) => setConfigFields({...configFields, clientId: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">Secret</label>
+                          <input type="password" value={configFields.secret || ''} onChange={(e) => setConfigFields({...configFields, secret: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                      </>
+                    )}
+                    {editingProvider === 'payeer' && (
+                      <>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">Merchant ID</label>
+                          <input value={configFields.merchantId || ''} onChange={(e) => setConfigFields({...configFields, merchantId: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">Secret Key</label>
+                          <input type="password" value={configFields.secretKey || ''} onChange={(e) => setConfigFields({...configFields, secretKey: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                      </>
+                    )}
+                    {editingProvider === 'skrill' && (
+                      <>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">Merchant Email</label>
+                          <input value={configFields.email || ''} onChange={(e) => setConfigFields({...configFields, email: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">Secret Word (IPN)</label>
+                          <input type="password" value={configFields.secretWord || ''} onChange={(e) => setConfigFields({...configFields, secretWord: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                      </>
+                    )}
+                    {editingProvider === 'coinpayments' && (
+                      <>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">Public Key</label>
+                          <input value={configFields.publicKey || ''} onChange={(e) => setConfigFields({...configFields, publicKey: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">IPN Secret</label>
+                          <input type="password" value={configFields.ipnSecret || ''} onChange={(e) => setConfigFields({...configFields, ipnSecret: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                      <div className="space-y-1">
+                          <label className="text-[10px] font-black text-neutral-500 uppercase">Merchant ID</label>
+                          <input value={configFields.merchantId || ''} onChange={(e) => setConfigFields({...configFields, merchantId: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-sm" />
+                        </div>
+                      </>
+                    )}
+
+                  <div className="flex items-center gap-3 pt-4">
+                    <input type="checkbox" checked={isProviderActive} onChange={(e) => setIsProviderActive(e.target.checked)} className="w-4 h-4 rounded bg-black border-neutral-800" />
+                    <label className="text-xs font-black uppercase tracking-widest text-neutral-400">Enable Gateway</label>
+                  </div>
+
+                    <button
+                      onClick={async () => {
+                        await savePaymentConfig({ provider: editingProvider as any, config: configFields, isActive: isProviderActive })
+                        alert('Gateway updated successfully')
+                        setEditingProvider(null)
+                      }}
+                      className="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-black text-sm uppercase transition-all mt-4"
+                    >
+                      Update Gateway
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            )}
+            </div>
+            </main>
     </div>
   )
 }

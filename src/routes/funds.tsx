@@ -39,12 +39,11 @@ function AddFundsPage() {
   if (!me) return null
 
   const paymentMethods = [
-    { id: 'DEMO', name: 'Demo Balance', icon: '⚡', desc: 'Add instant balance for testing purposes.' },
     { id: 'GIFT_CARD', name: 'Gift Card', icon: '🎁', desc: 'Redeem a prepaid coupon code.' },
-    { id: 'revolut', name: 'Revolut Pay', icon: '💳', desc: 'Instant credit card or app payment.' },
     { id: 'paypal', name: 'PayPal', icon: '🅿️', desc: 'Secure payment via PayPal account.' },
+    { id: 'payeer', name: 'Payeer', icon: '🅿️', desc: 'Instant deposit via Payeer wallet.' },
     { id: 'cryptomus', name: 'Cryptomus', icon: '₿', desc: 'Pay with BTC, ETH, USDT & more.' },
-    { id: 'selly', name: 'Selly.gg', icon: '🛒', desc: 'Automated digital storefront payment.' },
+    { id: 'revolut', name: 'Revolut Pay', icon: '💳', desc: 'Instant credit card or app payment.' },
     { id: 'skrill', name: 'Skrill', icon: '💰', desc: 'Elite digital wallet transfer.' },
   ]
 
@@ -63,13 +62,20 @@ function AddFundsPage() {
       }
       return
     }
-    if (method === 'DEMO') {
-      await depositMutation({ userId: userId!, amount, method: 'DEMO' })
-      alert('Demo balance added!')
-    } else {
-      // Logic for IPN / Pending payment
+    
+    // Create a pending transaction and show user where to pay
+    try {
       await depositMutation({ userId: userId!, amount, method: method.toUpperCase() })
-      alert(`Request for ${amount} via ${method} submitted. Please complete the payment on the following screen (Simulated). Status: Pending.`)
+      if (method === 'paypal') {
+        alert(`PayPal order created for ${amount}. Redirecting to secure checkout... (Simulation)`)
+        // In real app: window.location.href = `https://paypal.com/checkout?amount=${amount}&custom=${userId}`
+      } else if (method === 'payeer') {
+        alert(`Payeer order created for ${amount}. Please complete payment in the next screen. (Simulation)`)
+      } else {
+        alert(`Request for ${amount} via ${method.toUpperCase()} submitted. Please wait for manual verification or IPN update.`)
+      }
+    } catch (err: any) {
+      alert(err.message)
     }
   }
 
@@ -232,12 +238,11 @@ function AddFundsPage() {
 
               <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {paymentMethods.map(method => (
-                  <button 
+                  <button
                     key={method.id}
                     onClick={() => handlePayment(method.id)}
                     className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-4 md:p-6 text-left hover:bg-white/5 hover:border-neutral-600 transition-all group relative overflow-hidden"
                   >
-                    {method.id === 'DEMO' && <div className="absolute top-0 right-0 bg-indigo-500 text-[8px] font-black px-2 py-0.5 rounded-bl-lg uppercase">Instant</div>}
                     <div className="flex items-center gap-4 mb-3 text-white">
                       <div className="w-10 h-10 md:w-12 md:h-12 bg-neutral-800 rounded-xl flex items-center justify-center text-xl md:text-2xl group-hover:scale-110 transition-transform">
                         {method.icon}
@@ -245,7 +250,7 @@ function AddFundsPage() {
                       <div>
                         <h3 className="font-bold text-white uppercase tracking-tight text-sm md:text-base">{method.name}</h3>
                         <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-tighter">
-                          {method.id === 'DEMO' ? 'Instant' : 'IPN / Pending'}
+                          {method.id === 'GIFT_CARD' ? 'Instant' : 'IPN / Pending'}
                         </p>
                       </div>
                     </div>

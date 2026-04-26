@@ -110,4 +110,10 @@ export default defineSchema({
     type: v.string(),
   }).index("by_externalId", ["externalId"])
     .index("by_category", ["category"]),
+
+  paymentConfigs: defineTable({
+    provider: v.union(v.literal("paypal"), v.literal("payeer"), v.literal("coinpayments"), v.literal("stripe")),
+    config: v.record(v.string(), v.string()), // Keys like clientId, secret, merchantId, ipnSecret etc.
+    isActive: v.boolean(),
+  }).index("by_provider", ["provider"]),
 });

@@ -13,6 +13,7 @@ import type * as chat from "../chat.js";
 import type * as coupons from "../coupons.js";
 import type * as http from "../http.js";
 import type * as mail from "../mail.js";
+import type * as payments from "../payments.js";
 import type * as smm from "../smm.js";
 import type * as support from "../support.js";
 import type * as transactions from "../transactions.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   coupons: typeof coupons;
   http: typeof http;
   mail: typeof mail;
+  payments: typeof payments;
   smm: typeof smm;
   support: typeof support;
   transactions: typeof transactions;

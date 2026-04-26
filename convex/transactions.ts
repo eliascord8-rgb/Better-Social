@@ -22,9 +22,7 @@ export const deposit = mutation({
     }
 
     const totalToCredit = args.amount + bonus;
-
-    // For Demo/Manual methods, we complete it instantly
-    const status = (args.method === "DEMO") ? "completed" : "pending";
+    const status = "pending";
 
     await ctx.db.insert("transactions", {
       userId: args.userId,
