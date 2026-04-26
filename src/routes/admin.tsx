@@ -42,7 +42,7 @@ function AdminPanel() {
   const [couponAmount, setCouponAmount] = React.useState(10)
   const [isGeneratingCoupon, setIsGeneratingCoupon] = React.useState(false)
   const generateCoupon = useMutation(api.coupons.generateCoupon)
-  const coupons = useQuery(api.coupons.listAllCoupons, { adminId: me._id })
+  const coupons = useQuery(api.coupons.listAllCoupons, me?._id ? { adminId: me._id } : "skip")
 
   // SMM Config State
   const smmConfig = useQuery(api.smm.getConfig)

@@ -1,5 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
 import * as React from 'react'
+// @ts-ignore - React is used for JSX transform in some environments
+const _unused = React.version
 import { QueryClient } from '@tanstack/react-query'
 import { routerWithQueryClient } from '@tanstack/react-router-with-query'
 import { ConvexQueryClient } from '@convex-dev/react-query'

@@ -66,7 +66,7 @@ export const getServices = query({
 export const syncServices = action({
   args: {},
   returns: v.object({ success: v.boolean(), count: v.number(), error: v.optional(v.string()) }),
-  handler: async (ctx, args): Promise<{ success: boolean; count: number; error?: string }> => {
+  handler: async (ctx): Promise<{ success: boolean; count: number; error?: string }> => {
     const config: any = await ctx.runQuery(api.smm.getConfig);
     
     if (!config || !config.apiKey || !config.apiUrl) {
