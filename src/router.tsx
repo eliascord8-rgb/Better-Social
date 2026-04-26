@@ -1,4 +1,5 @@
 import { createRouter } from '@tanstack/react-router'
+import * as React from 'react'
 import { QueryClient } from '@tanstack/react-query'
 import { routerWithQueryClient } from '@tanstack/react-router-with-query'
 import { ConvexQueryClient } from '@convex-dev/react-query'
