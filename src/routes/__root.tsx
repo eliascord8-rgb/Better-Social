@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import * as React from 'react'
 import type { QueryClient } from '@tanstack/react-query'
-import { BetterQualityBroadcaster } from '../components/BetterQualityBroadcaster'
+import { BetterSocialBroadcaster } from '../components/BetterSocialBroadcaster'
 import { PageLoader } from '../components/PageLoader'
 import appCss from '~/styles/app.css?url'
 
@@ -40,7 +40,7 @@ function RootComponent() {
     <RootDocument>
       <PageLoader />
       <React.Suspense>
-        <BetterQualityBroadcaster />
+        <BetterSocialBroadcaster />
       </React.Suspense>
       <Outlet />
     </RootDocument>

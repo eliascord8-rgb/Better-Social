@@ -1,23 +1,23 @@
-import { useState, useEffect, useRef } from 'react'
+import * as React from 'react'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import type { Id } from '../../convex/_generated/dataModel'
 
 export function SupportWidget({ userId, username }: { userId?: Id<'users'> | null, username?: string | null }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [message, setMessage] = useState('')
-  const [email, setEmail] = useState('')
-  const [isStarting, setIsStarting] = useState(false)
-  const [threadId, setThreadId] = useState<Id<'supportThreads'> | null>(null)
+  const [isOpen, setIsOpen] = React.useState(false)
+  const [message, setMessage] = React.useState('')
+  const [email, setEmail] = React.useState('')
+  const [isStarting, setIsStarting] = React.useState(false)
+  const [threadId, setThreadId] = React.useState<Id<'supportThreads'> | null>(null)
   
   const getOrCreateThread = useMutation(api.support.getOrCreateThread)
   const sendMessage = useMutation(api.support.sendMessage)
   const messages = useQuery(api.support.getMessages, threadId ? { threadId } : "skip")
   
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const scrollRef = React.useRef<HTMLDivElement>(null)
 
   // Load existing guest thread if any (from local storage)
-  useEffect(() => {
+  React.useEffect(() => {
     if (!userId && !threadId) {
       const storedThreadId = localStorage.getItem('bq_guest_thread_id')
       if (storedThreadId) {
@@ -26,13 +26,13 @@ export function SupportWidget({ userId, username }: { userId?: Id<'users'> | nul
     }
   }, [userId, threadId])
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (userId && isOpen && !threadId) {
       getOrCreateThread({ userId }).then(id => setThreadId(id))
     }
   }, [isOpen, threadId, userId, getOrCreateThread])
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
@@ -95,7 +95,7 @@ export function SupportWidget({ userId, username }: { userId?: Id<'users'> | nul
               </button>
             </div>
             <div>
-              <h3 className="text-xl font-bold leading-tight">Support customers service</h3>
+              <h3 className="text-xl font-bold leading-tight">Better Social Support</h3>
               <p className="text-blue-100 text-sm opacity-80 flex items-center gap-2 mt-1">
                 <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 Online
@@ -165,7 +165,7 @@ export function SupportWidget({ userId, username }: { userId?: Id<'users'> | nul
                   </div>
                   <div className="mt-3 text-center">
                     <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold">
-                      Powered By <span className="text-blue-500">Better Quality</span>
+                      Powered By <span className="text-blue-500">Better Social</span>
                     </p>
                   </div>
                 </div>

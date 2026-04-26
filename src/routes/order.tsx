@@ -1,6 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
-import { useState, useMemo } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
 import { useMutation } from 'convex/react'
@@ -16,11 +15,11 @@ function OrderPage() {
   const navigate = useNavigate()
   const { data: me } = useSuspenseQuery(convexQuery(api.users.getMe, { userId: userId ?? undefined }))
   
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
-  const [selectedServiceId, setSelectedServiceId] = useState<string>('')
-  const [targetUrl, setTargetUrl] = useState('')
-  const [quantity, setQuantity] = useState<string>('0')
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = React.useState<string>('')
+  const [selectedServiceId, setSelectedServiceId] = React.useState<string>('')
+  const [targetUrl, setTargetUrl] = React.useState('')
+  const [quantity, setQuantity] = React.useState<string>('0')
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
 
   const { data: categories } = useSuspenseQuery(convexQuery(api.smm.getCategories, {}))
   const { data: filteredServices } = useSuspenseQuery(
@@ -30,11 +29,11 @@ function OrderPage() {
   const placeOrder = useMutation(api.smm.placeOrder)
 
   // Get selected service details
-  const selectedService = useMemo(() => {
+  const selectedService = React.useMemo(() => {
     return filteredServices.find(s => s.externalId === selectedServiceId)
   }, [selectedServiceId, filteredServices])
 
-  const totalPrice = useMemo(() => {
+  const totalPrice = React.useMemo(() => {
     if (!selectedService || !quantity) return 0
     const q = parseInt(quantity) || 0
     return (q / 1000) * selectedService.rate

@@ -1,6 +1,5 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
 import { useMutation } from 'convex/react'
@@ -15,9 +14,9 @@ export const Route = createFileRoute('/funds')({
 function AddFundsPage() {
   const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const navigate = useNavigate()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!userId) {
       navigate({ to: '/' })
     }
@@ -26,16 +25,16 @@ function AddFundsPage() {
   const { data: me } = useSuspenseQuery(convexQuery(api.users.getMe, { userId: userId ?? undefined }))
   const { data: transactions } = useSuspenseQuery(convexQuery(api.transactions.listMyTransactions, { userId: userId! }))
   
-  const [amount, setAmount] = useState(10)
-  const [withdrawAmount, setWithdrawAmount] = useState(0)
-  const [withdrawAddress, setWithdrawAddress] = useState('')
-  const [withdrawMethod, setWithdrawMethod] = useState('LTC')
+  const [amount, setAmount] = React.useState(10)
+  const [withdrawAmount, setWithdrawAmount] = React.useState(0)
+  const [withdrawAddress, setWithdrawAddress] = React.useState('')
+  const [withdrawMethod, setWithdrawMethod] = React.useState('LTC')
 
   const depositMutation = useMutation(api.transactions.deposit)
   const withdrawMutation = useMutation(api.transactions.requestWithdrawal)
   const redeemCoupon = useMutation(api.coupons.redeemCoupon)
-  const [couponCode, setCouponCode] = useState('')
-  const [isRedeeming, setIsRedeeming] = useState(false)
+  const [couponCode, setCouponCode] = React.useState('')
+  const [isRedeeming, setIsRedeeming] = React.useState(false)
 
   if (!me) return null
 
@@ -105,7 +104,7 @@ function AddFundsPage() {
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-black rounded-sm rotate-45" />
           </div>
-          <span className="font-black tracking-tighter text-xl uppercase">BQ</span>
+          <span className="font-black tracking-tighter text-xl uppercase">BS</span>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-neutral-400">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -218,7 +217,7 @@ function AddFundsPage() {
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                       className="flex-1 bg-black border border-neutral-800 rounded-xl px-4 py-2 text-sm font-mono focus:outline-none focus:border-indigo-500 transition-all uppercase"
-                      placeholder="BQ-XXXX-XXXX-XXXX"
+                      placeholder="BS-XXXX-XXXX-XXXX"
                     />
                     <button 
                       onClick={() => handlePayment('GIFT_CARD')}

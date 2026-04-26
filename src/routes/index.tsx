@@ -1,6 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
-import { useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { SupportWidget } from '../components/SupportWidget'
@@ -11,12 +10,12 @@ export const Route = createFileRoute('/')({
 })
 
 function Home() {
-  const [mode, setMode] = useState<'login' | 'register'>('login')
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [mode, setMode] = React.useState<'login' | 'register'>('login')
+  const [username, setUsername] = React.useState('')
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
+  const [error, setError] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(false)
   
   const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const navigate = useNavigate()
@@ -151,7 +150,7 @@ function Home() {
           </form>
 
           <p className="mt-8 text-center text-xs text-neutral-600">
-            By entering Better Quality, you agree to our Terms of Service and Privacy Policy.
+            By entering Better Social, you agree to our Terms of Service and Privacy Policy.
           </p>
         </div>
 
@@ -170,7 +169,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <SupportWidget userId={userId} />
+      <SupportWidget userId={userId || undefined} />
     </main>
   )
 }

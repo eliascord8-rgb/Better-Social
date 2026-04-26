@@ -1,18 +1,18 @@
+import * as React from 'react'
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "../../convex/_generated/api";
-import { useState, useEffect } from "react";
 import type { Id } from "../../convex/_generated/dataModel";
 
-export function BetterQualityBroadcaster() {
+export function BetterSocialBroadcaster() {
   const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const { data: me } = useSuspenseQuery(convexQuery(api.users.getMe, { userId: userId ?? undefined }));
   const { data: latestNotification } = useSuspenseQuery(convexQuery(api.chat.getLatestGlobalNotification, {}));
-  const [show, setShow] = useState(false);
-  const [isFading, setIsFading] = useState(false);
-  const [lastId, setLastId] = useState<string | null>(null);
+  const [show, setShow] = React.useState(false);
+  const [isFading, setIsFading] = React.useState(false);
+  const [lastId, setLastId] = React.useState<string | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!latestNotification) return;
 
     // Use session storage to ensure we only show each notification ONCE per session
@@ -55,7 +55,7 @@ export function BetterQualityBroadcaster() {
     }
   }, [latestNotification, lastId, me]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (show) {
       const safetyTimer = setTimeout(() => {
         setShow(false);

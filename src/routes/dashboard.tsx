@@ -1,6 +1,5 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
 import { useMutation, useQuery } from 'convex/react'
@@ -15,9 +14,9 @@ export const Route = createFileRoute('/dashboard')({
 function Dashboard() {
   const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const navigate = useNavigate()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!userId) {
       navigate({ to: '/' })
     }
@@ -30,12 +29,12 @@ function Dashboard() {
   const placeOrder = useMutation(api.smm.placeOrder)
   const { data: services } = useSuspenseQuery(convexQuery(api.smm.getServices, {}))
 
-  const [chatInput, setChatInput] = useState('')
-  const [orderData, setOrderData] = useState({ serviceId: '', targetUrl: '', quantity: 0 })
-  const [activeAlert, setActiveAlert] = useState<string | null>(null)
+  const [chatInput, setChatInput] = React.useState('')
+  const [orderData, setOrderData] = React.useState({ serviceId: '', targetUrl: '', quantity: 0 })
+  const [activeAlert, setActiveAlert] = React.useState<string | null>(null)
 
   // Handle Private Alerts (Popups/Kicks)
-  useEffect(() => {
+  React.useEffect(() => {
     if (alerts && alerts.length > 0) {
       const latest = alerts[alerts.length - 1]
       if (latest.content) {
@@ -102,7 +101,7 @@ function Dashboard() {
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-black rounded-sm rotate-45" />
           </div>
-          <span className="font-black tracking-tighter text-xl uppercase">BQ</span>
+          <span className="font-black tracking-tighter text-xl uppercase">BS</span>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-neutral-400">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -272,7 +271,7 @@ function Dashboard() {
                 <input 
                   type="text" 
                   value={chatInput}
-                  disabled={me.muteUntil && me.muteUntil > Date.now()}
+                  disabled={!!(me.muteUntil && me.muteUntil > Date.now())}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
                   placeholder={me.muteUntil && me.muteUntil > Date.now() ? "You are muted" : "Send a message..."} 

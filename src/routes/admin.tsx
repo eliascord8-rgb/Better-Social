@@ -1,6 +1,5 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
 import { useMutation, useAction, useQuery } from 'convex/react'
@@ -14,7 +13,7 @@ export const Route = createFileRoute('/admin')({
 function AdminPanel() {
   const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const navigate = useNavigate()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
   const { data: me } = useSuspenseQuery(convexQuery(api.users.getMe, { userId: userId ?? undefined }))
   const { data: users } = useSuspenseQuery(convexQuery(api.users.list, {}))
   const { data: pendingTxs } = useSuspenseQuery(convexQuery(api.transactions.listAllPendingTransactions, {}))
@@ -28,20 +27,20 @@ function AdminPanel() {
   const sendMessage = useMutation(api.support.sendMessage)
   const closeThread = useMutation(api.support.closeThread)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!me || (me.role !== 'admin' && me.role !== 'owner' && me.role !== 'moderator')) {
       navigate({ to: '/dashboard' })
     }
   }, [me, navigate])
 
-  const [activeTab, setActiveTab] = useState<'users' | 'transactions' | 'mail' | 'support' | 'smm' | 'coupons'>(me?.role === 'moderator' ? 'support' : 'users')
-  const [mailSubject, setMailSubject] = useState('')
-  const [mailMessage, setMailMessage] = useState('')
-  const [isSendingMail, setIsSendingMail] = useState(false)
+  const [activeTab, setActiveTab] = React.useState<'users' | 'transactions' | 'mail' | 'support' | 'smm' | 'coupons'>(me?.role === 'moderator' ? 'support' : 'users')
+  const [mailSubject, setMailSubject] = React.useState('')
+  const [mailMessage, setMailMessage] = React.useState('')
+  const [isSendingMail, setIsSendingMail] = React.useState(false)
 
   // Coupon Generator State
-  const [couponAmount, setCouponAmount] = useState(10)
-  const [isGeneratingCoupon, setIsGeneratingCoupon] = useState(false)
+  const [couponAmount, setCouponAmount] = React.useState(10)
+  const [isGeneratingCoupon, setIsGeneratingCoupon] = React.useState(false)
   const generateCoupon = useMutation(api.coupons.generateCoupon)
   const coupons = useQuery(api.coupons.listAllCoupons, { adminId: me._id })
 
@@ -49,11 +48,11 @@ function AdminPanel() {
   const smmConfig = useQuery(api.smm.getConfig)
   const setSmmConfig = useMutation(api.smm.setConfig)
   const syncSmmServices = useAction(api.smm.syncServices)
-  const [smmUrl, setSmmUrl] = useState('')
-  const [smmKey, setSmmKey] = useState('')
-  const [isSyncing, setIsSyncing] = useState(false)
+  const [smmUrl, setSmmUrl] = React.useState('')
+  const [smmKey, setSmmKey] = React.useState('')
+  const [isSyncing, setIsSyncing] = React.useState(false)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (smmConfig) {
       setSmmUrl(smmConfig.apiUrl)
       setSmmKey(smmConfig.apiKey)
@@ -62,9 +61,9 @@ function AdminPanel() {
 
   // Support Chat State
   const { data: activeThreads } = useSuspenseQuery(convexQuery(api.support.listActiveThreads, {}))
-  const [selectedThreadId, setSelectedThreadId] = useState<Id<'supportThreads'> | null>(null)
+  const [selectedThreadId, setSelectedThreadId] = React.useState<Id<'supportThreads'> | null>(null)
   const { data: threadMessages } = useSuspenseQuery(convexQuery(api.support.getMessages, { threadId: selectedThreadId ?? undefined }))
-  const [replyText, setReplyText] = useState('')
+  const [replyText, setReplyText] = React.useState('')
 
   if (!me || (me.role !== 'admin' && me.role !== 'owner' && me.role !== 'moderator')) return null
 
@@ -105,7 +104,7 @@ function AdminPanel() {
           <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-white rounded-sm rotate-45" />
           </div>
-          <span className="font-black tracking-tighter text-xl uppercase">BQ ADMIN</span>
+          <span className="font-black tracking-tighter text-xl uppercase">BS ADMIN</span>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-neutral-400">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,7 +158,8 @@ function AdminPanel() {
               >
                 Coupon Generator
               </button>
-              </>
+            </>
+          )}
 
           <button 
             onClick={() => { setActiveTab('support'); setIsSidebarOpen(false); }}
@@ -447,6 +447,66 @@ function AdminPanel() {
                 >
                   {isSyncing ? 'SYNCING DATA...' : 'RUN GLOBAL SYNC'}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'coupons' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-8 shadow-2xl space-y-6">
+                <h2 className="text-xl font-black uppercase tracking-tighter italic">Generate Gift Card</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-neutral-500 uppercase mb-2">Coupon Amount ($)</label>
+                    <input 
+                      type="number" 
+                      value={couponAmount}
+                      onChange={(e) => setCouponAmount(parseFloat(e.target.value) || 0)}
+                      className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-3 text-white font-black"
+                      placeholder="10.00"
+                    />
+                  </div>
+                  <button 
+                    disabled={isGeneratingCoupon}
+                    onClick={async () => {
+                      setIsGeneratingCoupon(true)
+                      try {
+                        const code = await generateCoupon({ adminId: me._id, amount: couponAmount })
+                        alert(`Coupon Generated: ${code}`)
+                      } catch (err: any) {
+                        alert(err.message)
+                      } finally {
+                        setIsGeneratingCoupon(false)
+                      }
+                    }}
+                    className="w-full bg-white text-black py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-neutral-200 transition-all"
+                  >
+                    {isGeneratingCoupon ? 'GENERATING...' : 'GENERATE SECURE CODE'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-8 shadow-2xl space-y-6 flex flex-col h-[500px]">
+                <h2 className="text-xl font-black uppercase tracking-tighter italic">Recent Coupons</h2>
+                <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+                  {coupons?.map(coupon => (
+                    <div key={coupon._id} className="p-4 bg-black border border-neutral-800 rounded-xl flex justify-between items-center group">
+                      <div>
+                        <div className="font-mono text-indigo-400 font-bold">{coupon.code}</div>
+                        <div className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest">${coupon.amount.toFixed(2)}</div>
+                      </div>
+                      <div className="text-right">
+                        {coupon.isUsed ? (
+                          <span className="text-[8px] bg-red-500/10 text-red-500 px-2 py-1 rounded uppercase font-black">Used</span>
+                        ) : (
+                          <span className="text-[8px] bg-green-500/10 text-green-500 px-2 py-1 rounded uppercase font-black">Active</span>
+                        )}
+                        <div className="text-[9px] text-neutral-600 mt-1">{new Date(coupon._creationTime).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                  ))}
+                  {coupons?.length === 0 && <p className="text-center text-neutral-600 text-xs py-10 font-bold uppercase tracking-widest">No coupons generated yet</p>}
+                </div>
               </div>
             </div>
           )}

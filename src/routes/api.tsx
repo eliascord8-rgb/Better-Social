@@ -1,6 +1,5 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
 import { useMutation } from 'convex/react'
@@ -15,9 +14,9 @@ export const Route = createFileRoute('/api')({
 function APIAccessPage() {
   const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const navigate = useNavigate()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!userId) {
       navigate({ to: '/' })
     }
@@ -25,7 +24,7 @@ function APIAccessPage() {
 
   const { data: me } = useSuspenseQuery(convexQuery(api.users.getMe, { userId: userId ?? undefined }))
   const generateApiKey = useMutation(api.users.generateApiKey)
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [isGenerating, setIsGenerating] = React.useState(false)
 
   if (!me) return null
 
@@ -46,7 +45,7 @@ function APIAccessPage() {
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-black rounded-sm rotate-45" />
           </div>
-          <span className="font-black tracking-tighter text-xl uppercase">BQ</span>
+          <span className="font-black tracking-tighter text-xl uppercase">BS</span>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-neutral-400">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,7 +97,7 @@ function APIAccessPage() {
         <div className="max-w-5xl mx-auto space-y-8">
           <div>
             <h1 className="text-3xl font-black tracking-tight uppercase tracking-widest">API ACCESS</h1>
-            <p className="text-neutral-500 font-mono text-xs uppercase">Connect your panel to the Better Quality network</p>
+            <p className="text-neutral-500 font-mono text-xs uppercase">Connect your panel to the Better Social network</p>
           </div>
 
           <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-8 space-y-6 shadow-2xl">

@@ -1,6 +1,5 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
 import { useMutation, useQuery } from 'convex/react'
@@ -15,9 +14,9 @@ export const Route = createFileRoute('/irc')({
 function IRCChat() {
   const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const navigate = useNavigate()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!userId) {
       navigate({ to: '/' })
     }
@@ -27,7 +26,7 @@ function IRCChat() {
   const chatMessages = useQuery(api.chat.list, { channel: "irc" })
   const sendMessage = useMutation(api.chat.send)
 
-  const [chatInput, setChatInput] = useState('')
+  const [chatInput, setChatInput] = React.useState('')
 
   if (!me) return null
 
@@ -62,7 +61,7 @@ function IRCChat() {
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-black rounded-sm rotate-45" />
           </div>
-          <span className="font-black tracking-tighter text-xl uppercase">BQ</span>
+          <span className="font-black tracking-tighter text-xl uppercase">BS</span>
         </div>
         <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-neutral-400">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,7 +113,7 @@ function IRCChat() {
         <div className="max-w-5xl mx-auto w-full h-full flex flex-col">
           <div className="mb-6">
             <h1 className="text-3xl font-black tracking-tight uppercase tracking-widest">IRC CHANNEL</h1>
-            <p className="text-neutral-500 font-mono text-xs">ENCRYPTED PEER-TO-PEER COMMUNICATION</p>
+            <p className="text-neutral-500 font-mono text-xs uppercase">ENCRYPTED PEER-TO-PEER COMMUNICATION</p>
           </div>
 
           <div className="flex-1 bg-black border border-neutral-800 rounded-2xl p-6 flex flex-col overflow-hidden shadow-2xl">
@@ -138,7 +137,7 @@ function IRCChat() {
                   <span className="text-neutral-300 break-words">{msg.content}</span>
                 </div>
               ))}
-              <div className="text-green-500/50 text-xs py-4 border-b border-neutral-900 mb-4">*** Connected to #better-quality-irc (v4.2-stable)</div>
+              <div className="text-green-500/50 text-xs py-4 border-b border-neutral-900 mb-4">*** Connected to #better-social-irc (v4.2-stable)</div>
             </div>
             
             <div className="relative">
@@ -146,7 +145,7 @@ function IRCChat() {
               <input 
                 type="text" 
                 value={chatInput}
-                disabled={me.muteUntil && me.muteUntil > Date.now()}
+                disabled={!!(me.muteUntil && me.muteUntil > Date.now())}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendChat()}
                 placeholder={me.muteUntil && me.muteUntil > Date.now() ? "SYSTEM: YOU ARE MUTED" : "Type a message..."} 
