@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import * as React from 'react'
 import { useState, useEffect } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
