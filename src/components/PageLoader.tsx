@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import * as React from 'react'
 
 export function PageLoader() {
-  const [loading, setLoading] = useState(true);
-  const [isFading, setIsFading] = useState(false);
+  const [loading, setLoading] = React.useState(true);
+  const [isFading, setIsFading] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Start fading out at 3.5s
     const fadeTimer = setTimeout(() => setIsFading(true), 3500);
     // Remove from DOM at 4s
