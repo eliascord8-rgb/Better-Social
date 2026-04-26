@@ -6,12 +6,11 @@
   "scripts": {
     "dev": "npx convex dev --once && concurrently -r npm:dev:web npm:dev:convex",
     "dev:web": "vite dev",
-    "dev:ts": "tsc -b -w",
     "dev:convex": "npx convex dev",
     "build": "vite build && tsc --noEmit",
     "start": "node .output/server/index.mjs",
     "format": "prettier --write .",
-    "lint": "tsc && eslint .  --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "tsc && eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@auth/core": "0.37.4",
@@ -28,6 +27,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "resend": "^6.0.0",
+    "vinxi": "^0.5.11",
     "zod": "^4.3.6"
   },
   "devDependencies": {
