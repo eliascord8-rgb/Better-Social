@@ -4,7 +4,7 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import * as React from 'react'
+import React from 'react'
 import type { QueryClient } from '@tanstack/react-query'
 import { BetterSocialBroadcaster } from '../components/BetterSocialBroadcaster'
 import { PageLoader } from '../components/PageLoader'
@@ -38,7 +38,7 @@ export const Route = createRootRouteWithContext<{
 function RootComponent() {
   return (
     <RootDocument>
-      <PageLoader />
+      {/* Removed PageLoader temporarily to verify app functionality */}
       <React.Suspense>
         <BetterSocialBroadcaster />
       </React.Suspense>
