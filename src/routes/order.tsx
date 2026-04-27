@@ -19,24 +19,22 @@ function OrderPage() {
   const [selectedServiceId, setSelectedServiceId] = React.useState<string>('')
   const [targetUrl, setTargetUrl] = React.useState('')
   const [quantity, setQuantity] = React.useState<string>('0')
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
 
-  const { data: categories } = useSuspenseQuery(convexQuery(api.smm.getCategories, {}))
+  const { data: categories } = useSuspenseQuery(convexQuery((api.smm as any).getCategories, {}))
   const { data: filteredServices } = useSuspenseQuery(
-    convexQuery(api.smm.getServicesByCategory, { category: selectedCategory || '___NONE___' })
+    convexQuery((api.smm as any).getServicesByCategory, { category: selectedCategory || '___NONE___' })
   )
   
   const placeOrder = useMutation(api.smm.placeOrder)
 
-  // Get selected service details
   const selectedService = React.useMemo(() => {
-    return filteredServices.find(s => s.externalId === selectedServiceId)
+    return (filteredServices as any[])?.find(s => s.externalId === selectedServiceId)
   }, [selectedServiceId, filteredServices])
 
   const totalPrice = React.useMemo(() => {
     if (!selectedService || !quantity) return 0
     const q = parseInt(quantity) || 0
-    return (q / 1000) * selectedService.rate
+    return (q / 1000) * (selectedService as any).rate
   }, [selectedService, quantity])
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
@@ -47,8 +45,8 @@ function OrderPage() {
     const q = parseInt(quantity)
     if (isNaN(q) || q <= 0) return alert('Invalid quantity')
     
-    if (selectedService && q < selectedService.min) return alert(`Minimum quantity is ${selectedService.min}`)
-    if (selectedService && q > selectedService.max) return alert(`Maximum quantity is ${selectedService.max}`)
+    if (selectedService && q < (selectedService as any).min) return alert(`Minimum quantity is ${(selectedService as any).min}`)
+    if (selectedService && q > (selectedService as any).max) return alert(`Maximum quantity is ${(selectedService as any).max}`)
 
     try {
       await placeOrder({
@@ -64,22 +62,8 @@ function OrderPage() {
     }
   }
 
-  const NavItem = ({ to, label, icon, active = false }: { to: string, label: string, icon: string, active?: boolean }) => (
-    <button 
-      onClick={() => {
-        setIsSidebarOpen(false)
-        navigate({ to })
-      }}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-neutral-400 hover:bg-white/5 hover:text-white'}`}
-    >
-      <span className={`text-lg group-hover:scale-110 transition-transform ${active ? 'scale-110' : ''}`}>{icon}</span>
-      <span className="text-xs font-black uppercase tracking-widest">{label}</span>
-    </button>
-  )
-
   return (
     <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col md:flex-row overflow-x-hidden">
-      {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-neutral-900 bg-neutral-950 sticky top-0 z-[100]">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
@@ -87,13 +71,9 @@ function OrderPage() {
           </div>
           <span className="text-sm font-black uppercase tracking-tighter italic">Better Social</span>
         </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-neutral-400">
-          <span className="text-2xl">☰</span>
-        </button>
       </div>
 
-      {/* Sidebar */}
-      <aside className={`fixed md:relative top-0 left-0 h-full w-72 bg-neutral-950 border-r border-neutral-900 flex flex-col z-[200] transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed md:relative top-0 left-0 h-full w-72 bg-neutral-950 border-r border-neutral-900 flex flex-col z-[200] transition-transform duration-300 md:translate-x-0`}>
         <div className="p-8 hidden md:block">
           <div className="flex items-center gap-4 group cursor-pointer">
             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:rotate-12 transition-transform duration-500">
@@ -107,14 +87,8 @@ function OrderPage() {
         </div>
 
         <nav className="flex-1 px-4 space-y-2 overflow-y-auto mt-4 md:mt-0">
-          <NavItem to="/dashboard" label="Home Base" icon="🏠" />
-          <NavItem to="/order" label="New Order" icon="🛒" active />
-          <NavItem to="/funds" label="Add Balance" icon="💳" />
-          <NavItem to="/api" label="API Access" icon="🔌" />
-          <NavItem to="/irc" label="Chat Room" icon="💬" />
-          { (me?.role === 'admin' || me?.role === 'owner' || me?.role === 'moderator') && (
-            <NavItem to="/admin" label="Admin Deck" icon="⚙️" />
-          )}
+          <button onClick={() => navigate({ to: '/dashboard' })} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-neutral-400 hover:bg-white/5 hover:text-white text-xs font-black uppercase tracking-widest text-left">🏠 Home Base</button>
+          <button onClick={() => navigate({ to: '/order' })} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white shadow-lg text-xs font-black uppercase tracking-widest text-left">🛒 New Order</button>
         </nav>
 
         <div className="p-4 mt-auto border-t border-neutral-900">
@@ -125,12 +99,11 @@ function OrderPage() {
             }}
             className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-red-500 hover:bg-red-500/10 transition-all font-black uppercase text-[10px] tracking-widest"
           >
-            <span>🚪</span> SIGN OUT SYSTEM
+            <span>🚪</span> SIGN OUT
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 p-4 md:p-12 relative">
         <div className="max-w-4xl">
           <header className="mb-12">
@@ -160,7 +133,7 @@ function OrderPage() {
                     className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white text-sm focus:border-indigo-500 transition-colors appearance-none"
                   >
                     <option value="">Choose a category...</option>
-                    {categories?.map(cat => (
+                    {(categories as any[])?.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>
@@ -175,7 +148,7 @@ function OrderPage() {
                     className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white text-sm focus:border-indigo-500 transition-colors appearance-none disabled:opacity-50"
                   >
                     <option value="">Choose a service...</option>
-                    {filteredServices?.map(s => (
+                    {(filteredServices as any[])?.map(s => (
                       <option key={s.externalId} value={s.externalId}>
                         [{s.externalId}] {s.name} - ${s.rate.toFixed(2)}/1k
                       </option>
@@ -204,7 +177,7 @@ function OrderPage() {
                   />
                   {selectedService && (
                     <p className="mt-2 text-[9px] text-neutral-500 font-mono uppercase tracking-widest">
-                      Min: {selectedService.min} / Max: {selectedService.max}
+                      Min: {(selectedService as any).min} / Max: {(selectedService as any).max}
                     </p>
                   )}
                 </div>
@@ -225,7 +198,7 @@ function OrderPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-neutral-400">Service Rate</span>
-                    <span className="text-xs font-bold">${selectedService?.rate.toFixed(2) || '0.00'}/1k</span>
+                    <span className="text-xs font-bold">${(selectedService as any)?.rate.toFixed(2) || '0.00'}/1k</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-neutral-400">Quantity</span>
@@ -236,13 +209,6 @@ function OrderPage() {
                     <span className="text-2xl font-black text-white">${totalPrice.toFixed(2)}</span>
                   </div>
                 </div>
-              </div>
-
-              <div className="bg-indigo-600/5 border border-indigo-500/10 rounded-3xl p-6">
-                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Instant Delivery</p>
-                <p className="text-xs text-neutral-400 leading-relaxed">
-                  Most orders start within 1-60 minutes. High quality accounts guaranteed. Support is available 24/7 via the Chat Room.
-                </p>
               </div>
             </div>
           </div>
