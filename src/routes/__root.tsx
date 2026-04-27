@@ -5,6 +5,12 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import React from 'react'
+
+// Fix for "React is not defined" error in some environments
+if (typeof window !== 'undefined') {
+  ;(window as any).React = React
+}
+
 import type { QueryClient } from '@tanstack/react-query'
 import { BetterSocialBroadcaster } from '../components/BetterSocialBroadcaster'
 import { PageLoader } from '../components/PageLoader'

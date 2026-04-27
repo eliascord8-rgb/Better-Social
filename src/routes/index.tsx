@@ -24,6 +24,7 @@ function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Submit clicked', { mode, username, email })
     setError('')
     setIsLoading(true)
 
@@ -32,7 +33,9 @@ function Home() {
         if (!username) throw new Error('Username is required')
         if (!email) throw new Error('Email is required')
         if (!password) throw new Error('Password is required')
+        console.log('Calling register mutation...')
         const res = await register({ username, email, password })
+        console.log('Register response:', res)
         if (res.success) {
           localStorage.setItem('bq_user_id', res.userId!)
           navigate({ to: '/dashboard' })
@@ -41,7 +44,9 @@ function Home() {
         }
       } else {
         if (!username || !password) throw new Error('Username and Password required')
+        console.log('Calling login mutation...')
         const res = await login({ username, password })
+        console.log('Login response:', res)
         if (res.success && res.user) {
           localStorage.setItem('bq_user_id', res.user._id)
           navigate({ to: '/dashboard' })
@@ -50,6 +55,7 @@ function Home() {
         }
       }
     } catch (err: any) {
+      console.error('Submit error:', err)
       setError(err.message)
     } finally {
       setIsLoading(false)

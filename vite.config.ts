@@ -4,6 +4,9 @@ import tsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  define: {
+    'process.env': {},
+  },
   server: {
     allowedHosts: true,
   },
