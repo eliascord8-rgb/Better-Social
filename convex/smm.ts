@@ -49,6 +49,8 @@ export const getCategories = query({
   args: {},
   returns: v.array(v.string()),
   handler: async (ctx) => {
+    // For large tables, collect() without an index is slow. 
+    // But since we only need visible categories, we can filter effectively.
     const visibleServices = await ctx.db
       .query("services")
       .withIndex("by_isVisible", (q) => q.eq("isVisible", true))
@@ -72,12 +74,13 @@ export const getServicesByCategory = query({
       .withIndex("by_category", (q) => q.eq("category", args.category))
       .collect();
     
-    const visibleServices = services.filter(s => (s as any).isVisible === true);
-    
-    return visibleServices.map(s => ({
-      ...s,
-      rate: (s as any).customRate ?? (s.rate * (1 + markup))
-    }));
+    // Manual filter to handle existing data consistency
+    return services
+      .filter(s => (s as any).isVisible === true)
+      .map(s => ({
+        ...s,
+        rate: (s as any).customRate ?? (s.rate * (1 + markup))
+      }));
   },
 });
 
@@ -104,21 +107,9 @@ export const listAllServices = query({
   args: {},
   returns: v.array(v.any()),
   handler: async (ctx) => {
-    // Show 1000 services for admin list
-    return await ctx.db.query("services").order("desc").take(1000);
+    // Force order by creation to show newest/synced items first
+    return await ctx.db.query("services").order("desc").take(100);
   },
-});
-
-export const getStats = query({
-  args: {},
-  returns: v.object({ total: v.number(), visible: v.number() }),
-  handler: async (ctx) => {
-    const all = await ctx.db.query("services").collect();
-    return {
-      total: all.length,
-      visible: all.filter(s => (s as any).isVisible).length
-    };
-  }
 });
 
 export const updateServiceSettings = mutation({
@@ -159,19 +150,15 @@ export const syncServices = action({
       const data: any = await response.json();
       if (!Array.isArray(data)) return { success: false, count: 0, error: "Invalid response format" };
 
-      // Log start
-      console.log(`Starting sync for ${data.length} services...`);
-
-      const chunkSize = 50; // Smaller chunks for more reliability
+      // Batch sync
+      const chunkSize = 25; 
       let successCount = 0;
       for (let i = 0; i < data.length; i += chunkSize) {
         const chunk = data.slice(i, i + chunkSize);
-        try {
-          await ctx.runMutation(internal.smm.syncServicesBatch, { services: chunk });
-          successCount += chunk.length;
-        } catch (e: any) {
-          console.error(`Failed chunk ${i}: ${e.message}`);
-        }
+        await ctx.runMutation(internal.smm.syncServicesBatch, { services: chunk });
+        successCount += chunk.length;
+        // Small delay to prevent hitting Convex mutation limits for huge provider lists
+        if (i % 100 === 0) await new Promise(r => setTimeout(r, 100));
       }
 
       return { success: true, count: successCount };
@@ -205,7 +192,6 @@ export const syncServicesBatch = internalMutation({
       };
 
       if (existing) {
-        // Only patch rate/min/max/name to keep visibility settings
         await ctx.db.patch(existing._id, serviceData);
       } else {
         await ctx.db.insert("services", {
