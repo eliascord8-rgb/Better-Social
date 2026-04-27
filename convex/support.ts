@@ -1,6 +1,6 @@
-import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 
 export const getOrCreateThread = mutation({
   args: { 
@@ -58,9 +58,13 @@ export const getMessages = query({
   returns: v.array(v.any()),
   handler: async (ctx, args) => {
     if (!args.threadId) return [];
+    
+    // Explicitly cast to Id<"supportThreads"> to satisfy TypeScript
+    const threadId = args.threadId as Id<"supportThreads">;
+    
     const messages = await ctx.db
       .query("supportMessages")
-      .withIndex("by_thread", (q) => q.eq("threadId", args.threadId))
+      .withIndex("by_thread", (q) => q.eq("threadId", threadId))
       .collect();
 
     const results = [];
