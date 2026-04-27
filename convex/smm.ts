@@ -49,8 +49,11 @@ export const getCategories = query({
   args: {},
   returns: v.array(v.string()),
   handler: async (ctx) => {
-    const services = await ctx.db.query("services").collect();
-    const visibleServices = services.filter(s => (s as any).isVisible === true);
+    const visibleServices = await ctx.db
+      .query("services")
+      .withIndex("by_isVisible", (q) => q.eq("isVisible", true))
+      .collect();
+    
     const categories = new Set<string>();
     visibleServices.forEach(s => categories.add(s.category));
     return Array.from(categories).sort();
@@ -85,8 +88,10 @@ export const getServices = query({
     const config = await ctx.db.query("smmConfig").first();
     const markup = (config?.markupPercentage || 0) / 100;
 
-    const services = await ctx.db.query("services").collect();
-    const visibleServices = services.filter(s => (s as any).isVisible === true);
+    const visibleServices = await ctx.db
+      .query("services")
+      .withIndex("by_isVisible", (q) => q.eq("isVisible", true))
+      .collect();
     
     return visibleServices.map(s => ({
       ...s,
@@ -99,7 +104,11 @@ export const listAllServices = query({
   args: {},
   returns: v.array(v.any()),
   handler: async (ctx) => {
-    return await ctx.db.query("services").collect();
+    // We can't collect all 10,000 services at once due to Convex limits.
+    // For admin list, we take the first 1000 or paginate if needed.
+    // However, usually owners only care about the first few or need a search.
+    // Let's limit it to 1000 for safety.
+    return await ctx.db.query("services").order("desc").take(1000);
   },
 });
 
