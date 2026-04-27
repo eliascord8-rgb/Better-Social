@@ -63,18 +63,28 @@ function Home() {
         <div className="absolute -bottom-[40%] -right-[20%] w-[80%] h-[80%] rounded-full bg-purple-500/10 blur-[120px]" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 flex flex-col items-center justify-center min-h-screen">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter bg-gradient-to-b from-white to-neutral-400 bg-clip-text text-transparent mb-4 italic">
-            BETTER SOCIAL
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 flex flex-col lg:flex-row items-center justify-between min-h-screen gap-12">
+        <div className="text-left flex-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-6">
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+          System Status: Operational
+        </div>
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter bg-gradient-to-b from-white to-neutral-500 bg-clip-text text-transparent mb-6 italic leading-[0.9]">
+            BETTER<br/>SOCIAL
           </h1>
-          <p className="text-neutral-400 text-lg max-w-md mx-auto">
-            The ultimate social media marketing panel. Premium results, real-time sync, and unparalleled control.
+          <p className="text-neutral-400 text-lg max-w-md mb-8 leading-relaxed font-medium">
+            The elite social media marketing platform. Premium high-retention services with a real-time synchronized backend.
           </p>
+        <div className="flex gap-4 items-center mb-12">
+          <div className="flex -space-x-3">
+            {[1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-full border-2 border-neutral-950 bg-neutral-800 flex items-center justify-center text-xs font-bold">{i}</div>)}
+          </div>
+          <p className="text-xs text-neutral-500 font-bold uppercase tracking-widest">Joined by 2,500+ Elite Marketers</p>
+        </div>
         </div>
 
-        <div className="w-full max-w-md bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
-          <div className="flex gap-4 mb-8 p-1 bg-neutral-950 rounded-lg border border-neutral-800">
+        <div className="w-full max-w-md bg-neutral-900/40 backdrop-blur-2xl border border-neutral-800 rounded-3xl p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+          <div className="flex gap-4 mb-8 p-1 bg-neutral-950 rounded-xl border border-neutral-800">
             <button
               onClick={() => setMode('login')}
               className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${

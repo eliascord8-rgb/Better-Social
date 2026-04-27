@@ -4,21 +4,42 @@ import { api, internal } from "./_generated/api";
 
 export const getConfig = query({
   args: {},
-  returns: v.union(v.null(), v.object({ _id: v.id("smmConfig"), _creationTime: v.number(), apiUrl: v.string(), apiKey: v.string(), isActive: v.boolean() })),
+  returns: v.union(v.null(), v.object({ 
+    _id: v.id("smmConfig"), 
+    _creationTime: v.number(), 
+    apiUrl: v.string(), 
+    apiKey: v.string(), 
+    isActive: v.boolean(),
+    markupPercentage: v.optional(v.number())
+  })),
   handler: async (ctx) => {
     return await ctx.db.query("smmConfig").first();
   },
 });
 
 export const setConfig = mutation({
-  args: { apiUrl: v.string(), apiKey: v.string() },
+  args: { 
+    apiUrl: v.string(), 
+    apiKey: v.string(),
+    markupPercentage: v.optional(v.number())
+  },
   returns: v.null(),
   handler: async (ctx, args) => {
     const existing = await ctx.db.query("smmConfig").first();
     if (existing) {
-      await ctx.db.patch(existing._id, { apiUrl: args.apiUrl, apiKey: args.apiKey, isActive: true });
+      await ctx.db.patch(existing._id, { 
+        apiUrl: args.apiUrl, 
+        apiKey: args.apiKey, 
+        isActive: true,
+        markupPercentage: args.markupPercentage
+      });
     } else {
-      await ctx.db.insert("smmConfig", { apiUrl: args.apiUrl, apiKey: args.apiKey, isActive: true });
+      await ctx.db.insert("smmConfig", { 
+        apiUrl: args.apiUrl, 
+        apiKey: args.apiKey, 
+        isActive: true,
+        markupPercentage: args.markupPercentage
+      });
     }
     return null;
   },
@@ -39,10 +60,18 @@ export const getServicesByCategory = query({
   args: { category: v.string() },
   returns: v.array(v.any()),
   handler: async (ctx, args) => {
-    return await ctx.db
+    const config = await ctx.db.query("smmConfig").first();
+    const markup = (config?.markupPercentage || 0) / 100;
+
+    const services = await ctx.db
       .query("services")
       .withIndex("by_category", (q) => q.eq("category", args.category))
       .collect();
+    
+    return services.map(s => ({
+      ...s,
+      rate: s.rate * (1 + markup)
+    }));
   },
 });
 
@@ -50,15 +79,23 @@ export const getServices = query({
   args: {},
   returns: v.array(v.any()),
   handler: async (ctx) => {
+    const config = await ctx.db.query("smmConfig").first();
+    const markup = (config?.markupPercentage || 0) / 100;
+
     // Return only the first 1000 to avoid the 8192 limit
     const services = await ctx.db.query("services").take(1000);
-    if (services.length > 0) return services;
+    if (services.length > 0) {
+      return services.map(s => ({
+        ...s,
+        rate: s.rate * (1 + markup)
+      }));
+    }
     
     // Fallback for UI if empty
     return [
-      { _id: "mock1", externalId: "1", name: "Instagram Followers [Real]", rate: 2.50, category: "Instagram" },
-      { _id: "mock2", externalId: "2", name: "TikTok Views [Instant]", rate: 0.10, category: "TikTok" },
-      { _id: "mock3", externalId: "3", name: "YouTube Subscribers [No Drop]", rate: 15.00, category: "YouTube" },
+      { _id: "mock1", externalId: "1", name: "Instagram Followers [Real]", rate: 2.50 * (1 + markup), category: "Instagram" },
+      { _id: "mock2", externalId: "2", name: "TikTok Views [Instant]", rate: 0.10 * (1 + markup), category: "TikTok" },
+      { _id: "mock3", externalId: "3", name: "YouTube Subscribers [No Drop]", rate: 15.00 * (1 + markup), category: "YouTube" },
     ];
   },
 });
@@ -144,16 +181,24 @@ export const placeOrder = mutation({
     serviceId: v.string(),
     quantity: v.number(),
     targetUrl: v.string(),
-    cost: v.number(),
   },
   returns: v.id("orders"),
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.userId);
     if (!user) throw new Error("User not found");
-    if (user.balance < args.cost) throw new Error("Insufficient balance");
+
+    const service = await ctx.db.query("services").withIndex("by_externalId", q => q.eq("externalId", args.serviceId)).unique();
+    if (!service) throw new Error("Service not found");
+
+    const config = await ctx.db.query("smmConfig").first();
+    const markup = (config?.markupPercentage || 0) / 100;
+    const finalRate = service.rate * (1 + markup);
+    const cost = (finalRate / 1000) * args.quantity;
+
+    if (user.balance < cost) throw new Error("Insufficient balance");
 
     // Deduct balance
-    await ctx.db.patch(args.userId, { balance: user.balance - args.cost });
+    await ctx.db.patch(args.userId, { balance: user.balance - cost });
 
     // Insert order locally
     const orderId = await ctx.db.insert("orders", {
@@ -162,7 +207,7 @@ export const placeOrder = mutation({
       quantity: args.quantity,
       targetUrl: args.targetUrl,
       status: "pending",
-      cost: args.cost,
+      cost: cost,
     });
 
     // Schedule the actual API call

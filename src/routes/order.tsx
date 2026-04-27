@@ -56,7 +56,6 @@ function OrderPage() {
         serviceId: selectedServiceId,
         targetUrl,
         quantity: q,
-        cost: totalPrice
       })
       alert('Order placed successfully!')
       navigate({ to: '/dashboard' })

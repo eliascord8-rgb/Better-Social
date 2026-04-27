@@ -64,6 +64,7 @@ export default defineSchema({
     apiUrl: v.string(),
     apiKey: v.string(),
     isActive: v.boolean(),
+    markupPercentage: v.optional(v.number()), // e.g. 50 for 50% increase
   }),
 
   supportThreads: defineTable({

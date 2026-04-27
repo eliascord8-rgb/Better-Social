@@ -57,12 +57,14 @@ function AdminPanel() {
   const syncSmmServices = useAction(api.smm.syncServices)
   const [smmUrl, setSmmUrl] = React.useState('')
   const [smmKey, setSmmKey] = React.useState('')
+  const [markup, setMarkup] = React.useState(0)
   const [isSyncing, setIsSyncing] = React.useState(false)
 
   React.useEffect(() => {
     if (smmConfig) {
       setSmmUrl(smmConfig.apiUrl)
       setSmmKey(smmConfig.apiKey)
+    setMarkup(smmConfig.markupPercentage || 0)
     }
   }, [smmConfig])
 
@@ -417,27 +419,38 @@ function AdminPanel() {
                    </div>
                    <div>
                       <label className="block text-[10px] font-black text-neutral-500 uppercase mb-2">API Key</label>
-                      <input 
-                        type="password" 
+                      <input
+                        type="password"
                         value={smmKey}
                         onChange={(e) => setSmmKey(e.target.value)}
                         className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-white text-sm"
                         placeholder="Your API Key"
                       />
-                   </div>
-                   <button 
-                    onClick={async () => {
+                      </div>
+                      <div>
+                      <label className="block text-[10px] font-black text-neutral-500 uppercase mb-2">Price Markup (%)</label>
+                      <input
+                        type="number"
+                        value={markup}
+                        onChange={(e) => setMarkup(parseFloat(e.target.value) || 0)}
+                        className="w-full bg-black border border-neutral-800 rounded-lg px-4 py-2 text-white text-sm"
+                        placeholder="50"
+                      />
+                      <p className="text-[9px] text-neutral-600 mt-1 uppercase font-bold tracking-widest italic">Example: 50 will increase all service rates by 50%</p>
+                      </div>
+                      <button
+                      onClick={async () => {
                       try {
-                        await setSmmConfig({ apiUrl: smmUrl, apiKey: smmKey })
+                        await setSmmConfig({ apiUrl: smmUrl, apiKey: smmKey, markupPercentage: markup })
                         alert('Config saved')
                       } catch (err: any) {
                         alert('Error saving: ' + err.message)
                       }
-                    }}
-                    className="w-full bg-indigo-600 py-3 rounded-lg font-black text-sm uppercase"
-                   >
-                    Save Configuration
-                   </button>
+                      }}
+                      className="w-full bg-indigo-600 py-3 rounded-lg font-black text-sm uppercase"
+                      >
+                      Save Configuration
+                      </button>
                 </div>
               </div>
 

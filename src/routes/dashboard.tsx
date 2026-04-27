@@ -78,14 +78,12 @@ function Dashboard() {
   const handlePlaceOrder = async () => {
     const service = services.find((s: any) => (s.externalId || s.id) === orderData.serviceId)
     if (!service) return alert('Select a service')
-    const cost = (service.rate / 1000) * orderData.quantity
     try {
       await placeOrder({
         userId: me._id,
         serviceId: orderData.serviceId,
         quantity: orderData.quantity,
         targetUrl: orderData.targetUrl,
-        cost
       })
       alert('Order placed successfully! Check status in your order history.')
     } catch (err: any) {
