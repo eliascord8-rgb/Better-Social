@@ -130,8 +130,8 @@ export function SupportWidget({ userId, username }: { userId?: Id<'users'> | nul
               <>
                 <div ref={scrollRef} className="flex-1 p-6 overflow-y-auto space-y-4 custom-scrollbar">
                   {messages?.map((msg: any) => (
-                    <div key={msg._id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                      <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    <div key={msg._id} className={`flex flex-col €{msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                      <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed €{
                         msg.role === 'user' 
                           ? 'bg-blue-600 text-white rounded-br-none shadow-md' 
                           : 'bg-white text-neutral-800 rounded-bl-none shadow-sm border border-neutral-100'

@@ -16,7 +16,7 @@ export function BetterSocialBroadcaster() {
     if (!latestNotification) return;
 
     // Use session storage to ensure we only show each notification ONCE per session
-    const seenId = sessionStorage.getItem(`bq_seen_notif_${latestNotification._id}`);
+    const seenId = sessionStorage.getItem(`bq_seen_notif_€{latestNotification._id}`);
     
     if (latestNotification._id !== lastId && !seenId) {
       const isRecent = Date.now() - latestNotification._creationTime < 5000;
@@ -29,7 +29,7 @@ export function BetterSocialBroadcaster() {
         }
 
         setLastId(latestNotification._id);
-        sessionStorage.setItem(`bq_seen_notif_${latestNotification._id}`, "true");
+        sessionStorage.setItem(`bq_seen_notif_€{latestNotification._id}`, "true");
         setShow(true);
         setIsFading(false);
 
@@ -72,22 +72,22 @@ export function BetterSocialBroadcaster() {
       case 'deposit': return { 
         color: '#107C10', // Xbox Green
         text: 'ACHIEVEMENT UNLOCKED', 
-        sub: `${latestNotification.username} deposited $${latestNotification.content}` 
+        sub: `€{latestNotification.username} deposited €€{latestNotification.content}` 
       };
       case 'order': return { 
         color: '#0078D4', // Xbox Blue
         text: 'NEW ORDER RECEIVED', 
-        sub: `${latestNotification.username} ordered ${latestNotification.content} units` 
+        sub: `€{latestNotification.username} ordered €{latestNotification.content} units` 
       };
       case 'login': return { 
         color: '#C8A2C8', // Lilac
         text: 'PLAYER JOINED', 
-        sub: `${latestNotification.username} is now online (Level ${latestNotification.level})` 
+        sub: `€{latestNotification.username} is now online (Level €{latestNotification.level})` 
       };
       case 'chat': return { 
         color: '#525252', // Dark Grey
         text: 'NEW MESSAGE', 
-        sub: `${latestNotification.username}: ${latestNotification.content}` 
+        sub: `€{latestNotification.username}: €{latestNotification.content}` 
       };
       default: return { color: '#C8A2C8', text: 'NOTIFICATION', sub: '' };
     }
@@ -96,13 +96,13 @@ export function BetterSocialBroadcaster() {
   const theme = getTheme();
 
   return (
-    <div key={latestNotification._id} className={`fixed inset-x-0 bottom-12 z-[9999] flex items-center justify-center pointer-events-none transition-all duration-500 ${isFading ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'}`}>
+    <div key={latestNotification._id} className={`fixed inset-x-0 bottom-12 z-[9999] flex items-center justify-center pointer-events-none transition-all duration-500 €{isFading ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'}`}>
       
       <div className="relative flex items-center group">
         {/* Xbox Sphere Logo */}
         <div 
           className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.3)] z-20 animate-[xboxPulse_2s_infinite]"
-          style={{ border: `3px solid ${theme.color}` }}
+          style={{ border: `3px solid €{theme.color}` }}
         >
           <svg viewBox="0 0 100 100" className="w-10 h-10" style={{ color: theme.color }}>
              <path 

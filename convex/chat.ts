@@ -53,6 +53,122 @@ export const send = mutation({
           return null;
         }
       }
+
+      if (cmd === "/tip" && parts.length >= 3) {
+        const targetHandle = parts[1]; // @username or username
+        const targetUsername = targetHandle.startsWith("@") ? targetHandle.substring(1) : targetHandle;
+        const amount = parseFloat(parts[2]);
+
+        if (isNaN(amount) || amount <= 0) {
+          throw new Error("Invalid tip amount");
+        }
+
+        if (user.balance < amount) {
+          throw new Error("Insufficient balance to tip");
+        }
+
+        const targetUser = await ctx.db
+          .query("users")
+          .withIndex("by_username", (q) => q.eq("username", targetUsername))
+          .first();
+
+        if (!targetUser) {
+          throw new Error("User not found");
+        }
+
+        if (targetUser._id === user._id) {
+          throw new Error("You cannot tip yourself");
+        }
+
+        // Deduct from sender
+        await ctx.db.patch(user._id, { balance: user.balance - amount });
+        // Add to receiver
+        await ctx.db.patch(targetUser._id, { balance: targetUser.balance + amount });
+
+        // Announcement
+        await ctx.db.insert("messages", {
+          username: "SYSTEM",
+          role: "admin",
+          content: `${user.username} tipped €${amount.toFixed(2)} to ${targetUser.username}! 💸`,
+          channel: args.channel,
+          level: 99
+        });
+
+        // Add transaction records for both
+        await ctx.db.insert("transactions", {
+          userId: user._id,
+          amount: -amount,
+          type: "tip_sent",
+          description: `Tipped ${targetUser.username}`,
+          status: "completed"
+        });
+
+        await ctx.db.insert("transactions", {
+          userId: targetUser._id,
+          amount: amount,
+          type: "tip_received",
+          description: `Received tip from ${user.username}`,
+          status: "completed"
+        });
+
+        return null;
+      }
+    }
+
+    // Regular tip command for everyone (not just admin)
+    if (args.content.startsWith("/tip ")) {
+      const parts = args.content.split(" ");
+      if (parts.length >= 3) {
+        const targetHandle = parts[1];
+        const targetUsername = targetHandle.startsWith("@") ? targetHandle.substring(1) : targetHandle;
+        const amount = parseFloat(parts[2]);
+
+        if (!isNaN(amount) && amount > 0) {
+          if (user.balance < amount) {
+            throw new Error("Insufficient balance to tip");
+          }
+
+          const targetUser = await ctx.db
+            .query("users")
+            .withIndex("by_username", (q) => q.eq("username", targetUsername))
+            .first();
+
+          if (targetUser) {
+            if (targetUser._id === user._id) {
+              throw new Error("You cannot tip yourself");
+            }
+            
+            await ctx.db.patch(user._id, { balance: user.balance - amount });
+            await ctx.db.patch(targetUser._id, { balance: targetUser.balance + amount });
+
+            await ctx.db.insert("messages", {
+              username: "SYSTEM",
+              role: "admin",
+              content: `${user.username} tipped €${amount.toFixed(2)} to ${targetUser.username}! 💸`,
+              channel: args.channel,
+              level: 99
+            });
+
+            await ctx.db.insert("transactions", {
+              userId: user._id,
+              amount: -amount,
+              type: "tip_sent",
+              description: `Tipped ${targetUser.username}`,
+              status: "completed"
+            });
+
+            await ctx.db.insert("transactions", {
+              userId: targetUser._id,
+              amount: amount,
+              type: "tip_received",
+              description: `Received tip from ${user.username}`,
+              status: "completed"
+            });
+
+            return null;
+          }
+        }
+      }
     }
 
     // Insert regular message

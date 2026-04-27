@@ -53,7 +53,7 @@ function AddFundsPage() {
       setIsRedeeming(true)
       try {
         const res = await redeemCoupon({ userId: userId!, code: couponCode })
-        alert(`Redeemed ${res.amount.toFixed(2)} successfully!`)
+        alert(`Redeemed €{res.amount.toFixed(2)} successfully!`)
         setCouponCode('')
       } catch (err: any) {
         alert(err.message)
@@ -67,12 +67,12 @@ function AddFundsPage() {
     try {
       await depositMutation({ userId: userId!, amount, method: method.toUpperCase() })
       if (method === 'paypal') {
-        alert(`PayPal order created for ${amount}. Redirecting to secure checkout... (Simulation)`)
-        // In real app: window.location.href = `https://paypal.com/checkout?amount=${amount}&custom=${userId}`
+        alert(`PayPal order created for €{amount}. Redirecting to secure checkout... (Simulation)`)
+        // In real app: window.location.href = `https://paypal.com/checkout?amount=€{amount}&custom=€{userId}`
       } else if (method === 'payeer') {
-        alert(`Payeer order created for ${amount}. Please complete payment in the next screen. (Simulation)`)
+        alert(`Payeer order created for €{amount}. Please complete payment in the next screen. (Simulation)`)
       } else {
-        alert(`Request for ${amount} via ${method.toUpperCase()} submitted. Please wait for manual verification or IPN update.`)
+        alert(`Request for €{amount} via €{method.toUpperCase()} submitted. Please wait for manual verification or IPN update.`)
       }
     } catch (err: any) {
       alert(err.message)
@@ -100,7 +100,7 @@ function AddFundsPage() {
     }
   }
 
-  const bonusMessage = amount >= 100 ? `+ ${(amount * 0.4).toFixed(2)} Bonus (40%)` : 'Deposits over $100 get 40% EXTRA!'
+  const bonusMessage = amount >= 100 ? `+ €{(amount * 0.4).toFixed(2)} Bonus (40%)` : 'Deposits over €100 get 40% EXTRA!'
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col md:flex-row overflow-x-hidden">
@@ -120,7 +120,7 @@ function AddFundsPage() {
       </div>
 
       {/* Sidebar */}
-      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 €{isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="hidden md:flex items-center gap-3 px-2">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-black rounded-sm rotate-45" />
@@ -162,7 +162,7 @@ function AddFundsPage() {
         <div className="mt-auto pt-6 border-t border-neutral-900">
           <div className="bg-neutral-900/50 rounded-xl p-4 border border-neutral-800">
             <p className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1">Available Balance</p>
-            <p className="text-2xl font-black text-white">${me.balance?.toFixed(2)}</p>
+            <p className="text-2xl font-black text-white">€{me.balance?.toFixed(2)}</p>
           </div>
         </div>
       </nav>
@@ -191,7 +191,7 @@ function AddFundsPage() {
                 <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-4 md:p-6">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-4">Enter Amount (USD)</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-3 text-indigo-500 font-bold text-lg">$</span>
+                    <span className="absolute left-4 top-3 text-indigo-500 font-bold text-lg">€</span>
                     <input 
                       type="number" 
                       value={amount}
@@ -199,7 +199,7 @@ function AddFundsPage() {
                       className="w-full bg-black border border-neutral-800 rounded-xl pl-8 pr-4 py-3 text-xl font-black focus:outline-none focus:border-indigo-500 transition-all"
                     />
                   </div>
-                  <p className={`text-[9px] font-bold mt-3 uppercase tracking-wider ${amount >= 100 ? 'text-green-500' : 'text-neutral-600'}`}>
+                  <p className={`text-[9px] font-bold mt-3 uppercase tracking-wider €{amount >= 100 ? 'text-green-500' : 'text-neutral-600'}`}>
                     {bonusMessage}
                   </p>
                   <div className="grid grid-cols-3 gap-2 mt-4">
@@ -207,9 +207,9 @@ function AddFundsPage() {
                       <button 
                         key={val}
                         onClick={() => setAmount(val)}
-                        className={`py-2 text-[10px] font-bold rounded-lg border transition-all ${amount === val ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+                        className={`py-2 text-[10px] font-bold rounded-lg border transition-all €{amount === val ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-neutral-800 border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
                       >
-                        ${val}
+                        €{val}
                       </button>
                     ))}
                   </div>
@@ -277,7 +277,7 @@ function AddFundsPage() {
                           key={m}
                           type="button"
                           onClick={() => setWithdrawMethod(m)}
-                          className={`py-3 rounded-xl border font-black text-[10px] transition-all ${withdrawMethod === m ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-black border-neutral-800 text-neutral-500'}`}
+                          className={`py-3 rounded-xl border font-black text-[10px] transition-all €{withdrawMethod === m ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-black border-neutral-800 text-neutral-500'}`}
                         >
                           {m}
                         </button>
@@ -287,7 +287,7 @@ function AddFundsPage() {
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-4">Withdrawal Amount</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-3 text-red-500 font-bold text-lg">$</span>
+                      <span className="absolute left-4 top-3 text-red-500 font-bold text-lg">€</span>
                       <input 
                         type="number" 
                         value={withdrawAmount}
@@ -296,7 +296,7 @@ function AddFundsPage() {
                         placeholder="0.00"
                       />
                     </div>
-                    <p className="text-[10px] text-neutral-500 mt-2 font-bold uppercase">Balance after withdrawal: ${(me.balance - withdrawAmount).toFixed(2)}</p>
+                    <p className="text-[10px] text-neutral-500 mt-2 font-bold uppercase">Balance after withdrawal: €{(me.balance - withdrawAmount).toFixed(2)}</p>
                   </div>
                 </div>
 
@@ -308,7 +308,7 @@ function AddFundsPage() {
                       value={withdrawAddress}
                       onChange={(e) => setWithdrawAddress(e.target.value)}
                       className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-indigo-500 transition-all"
-                      placeholder={`Enter your ${withdrawMethod} address...`}
+                      placeholder={`Enter your €{withdrawMethod} address...`}
                     />
                     <p className="text-[10px] text-neutral-600 mt-2 italic">Make sure the address is correct. Withdrawals are irreversible once completed.</p>
                   </div>
@@ -351,15 +351,15 @@ function AddFundsPage() {
                     transactions?.map(tx => (
                       <tr key={tx._id} className="hover:bg-white/5 transition-all group">
                         <td className="px-6 py-4">
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-tighter ${tx.type === 'deposit' ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-tighter €{tx.type === 'deposit' ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
                             {tx.type}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-xs font-bold text-neutral-300">{tx.method}</td>
-                        <td className="px-6 py-4 text-xs font-black text-white">${tx.amount.toFixed(2)}</td>
-                        <td className="px-6 py-4 text-xs font-bold text-indigo-400">{tx.bonus ? `+${tx.bonus.toFixed(2)}` : '-'}</td>
+                        <td className="px-6 py-4 text-xs font-black text-white">€{tx.amount.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-xs font-bold text-indigo-400">{tx.bonus ? `+€{tx.bonus.toFixed(2)}` : '-'}</td>
                         <td className="px-6 py-4">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase €{
                             tx.status === 'completed' ? 'text-green-500 bg-green-500/10' : 
                             tx.status === 'pending' ? 'text-yellow-500 bg-yellow-500/10' : 
                             'text-red-500 bg-red-500/10'

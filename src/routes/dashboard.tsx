@@ -32,6 +32,12 @@ function Dashboard() {
   const [chatInput, setChatInput] = React.useState('')
   const [orderData, setOrderData] = React.useState({ serviceId: '', targetUrl: '', quantity: 0 })
   const [activeAlert, setActiveAlert] = React.useState<string | null>(null)
+  
+  // Tip Modal State
+  const [tipTarget, setTipTarget] = React.useState<{ username: string } | null>(null)
+  const [tipAmount, setTipAmount] = React.useState<string>('')
+  const [isTipping, setIsTipping] = React.useState(false)
+  const tipMutation = useMutation(api.users.tip)
 
   // Handle Private Alerts (Popups/Kicks)
   React.useEffect(() => {
@@ -55,7 +61,7 @@ function Dashboard() {
     if (!chatInput.trim()) return
     
     if (me.muteUntil && me.muteUntil > Date.now()) {
-      alert(`You are muted until ${new Date(me.muteUntil).toLocaleString()}`)
+      alert(`You are muted until €{new Date(me.muteUntil).toLocaleString()}`)
       return
     }
 
@@ -71,6 +77,31 @@ function Dashboard() {
       setChatInput('')
     } catch (err: any) {
       alert(err.message)
+    }
+  }
+
+  const handleTip = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (!tipTarget || !tipAmount) return
+    
+    const amount = parseFloat(tipAmount)
+    if (isNaN(amount) || amount <= 0) return alert('Invalid amount')
+    if (amount > me.balance) return alert('Insufficient balance')
+
+    setIsTipping(true)
+    try {
+      await tipMutation({
+        senderId: me._id,
+        receiverUsername: tipTarget.username,
+        amount
+      })
+      alert(`Tipped €€{amount.toFixed(2)} to €{tipTarget.username}!`)
+      setTipTarget(null)
+      setTipAmount('')
+    } catch (err: any) {
+      alert(err.message)
+    } finally {
+      setIsTipping(false)
     }
   }
 
@@ -92,6 +123,51 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col md:flex-row overflow-x-hidden">
+      {/* Tip Modal */}
+      {tipTarget && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-neutral-900 border border-white/10 p-8 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h3 className="text-xl font-bold mb-1 uppercase tracking-tight">Send Tip</h3>
+            <p className="text-neutral-500 text-sm mb-6 font-medium">To @{tipTarget.username}</p>
+            
+            <form onSubmit={handleTip} className="space-y-4">
+              <div>
+                <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1.5 block">Amount (€)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 font-bold">€</span>
+                  <input 
+                    type="number"
+                    step="0.01"
+                    autoFocus
+                    value={tipAmount}
+                    onChange={(e) => setTipAmount(e.target.value)}
+                    placeholder="10.00"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 pl-8 text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-mono"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button 
+                  type="button"
+                  onClick={() => setTipTarget(null)}
+                  className="py-3 bg-neutral-800 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-neutral-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isTipping || !tipAmount}
+                  className="py-3 bg-white text-black text-xs font-black uppercase tracking-widest rounded-xl hover:bg-neutral-200 transition-colors disabled:opacity-50"
+                >
+                  {isTipping ? 'Sending...' : 'Confirm'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-neutral-900 bg-neutral-950 sticky top-0 z-[100]">
         <div className="flex items-center gap-3">
@@ -127,7 +203,7 @@ function Dashboard() {
       )}
 
       {/* Sidebar */}
-      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 €{isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="hidden md:flex items-center gap-3 px-2">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-black rounded-sm rotate-45" />
@@ -136,7 +212,7 @@ function Dashboard() {
         </div>
 
         <div className="space-y-1">
-        <Link to="/dashboard" onClick={() => setIsSidebarOpen(false)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5 text-white font-medium border border-white/10">
+        <Link to="/dashboard" onClick={() => setIsSidebarOpen(false)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5 text-white font-medium border border-white/10 text-xs font-black uppercase tracking-widest">
           <DashboardIcon /> Dashboard
         </Link>
         <Link to="/api" onClick={() => setIsSidebarOpen(false)} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:bg-white/5 hover:text-white transition-all text-xs font-black uppercase tracking-widest">
@@ -174,7 +250,7 @@ function Dashboard() {
         <div className="mt-auto pt-8 border-t border-neutral-900">
           <div className="bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/20 rounded-xl p-4">
             <div className="text-xs text-neutral-500 uppercase font-bold tracking-wider mb-1">Your Balance</div>
-            <div className="text-2xl font-black">${me.balance.toFixed(2)}</div>
+            <div className="text-2xl font-black">€{me.balance.toFixed(2)}</div>
           </div>
         </div>
       </nav>
@@ -208,7 +284,7 @@ function Dashboard() {
                     <option value="">Select Service...</option>
                     {services?.map((s: any) => (
                       <option key={s._id || s.id} value={s.externalId || s.id}>
-                        [{s.category || 'Service'}] {s.name} - ${s.rate.toFixed(2)}/k
+                        [{s.category || 'Service'}] {s.name} - €{s.rate.toFixed(2)}/k
                       </option>
                     ))}
                   </select>
@@ -237,7 +313,7 @@ function Dashboard() {
                   <div>
                     <label className="text-[10px] font-bold text-neutral-500 uppercase mb-1 block">Total Cost</label>
                     <div className="h-10 flex items-center px-4 bg-neutral-950 border border-neutral-800 rounded-lg text-sm text-neutral-400 font-mono">
-                      ${((services?.find((s: any) => (s.externalId || s.id) === orderData.serviceId)?.rate || 0) / 1000 * orderData.quantity).toFixed(2)}
+                      €{((services?.find((s: any) => (s.externalId || s.id) === orderData.serviceId)?.rate || 0) / 1000 * orderData.quantity).toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -265,6 +341,7 @@ function Dashboard() {
                     text={msg.content} 
                     time={msg._creationTime}
                     avatar={msg.profilePicture}
+                    onTip={() => setTipTarget({ username: msg.username })}
                   />
                 ))}
               </div>
@@ -294,27 +371,35 @@ function Dashboard() {
   )
 }
 
-function ChatMessage({ name, role, level, text, time, avatar }: { name: string; role?: string; level?: number; text: string; time: number; avatar?: string }) {
+function ChatMessage({ name, role, level, text, time, avatar, onTip }: { name: string; role?: string; level?: number; text: string; time: number; avatar?: string; onTip: () => void }) {
   const roleColor = role === 'admin' || role === 'owner' ? 'text-red-500' : role === 'moderator' ? 'text-green-500' : 'text-neutral-300';
   const bgColor = role === 'admin' || role === 'owner' ? 'bg-red-500/10' : role === 'moderator' ? 'bg-green-500/10' : '';
   const timeStr = new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const displayAvatar = avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+  const displayAvatar = avatar || `https://ui-avatars.com/api/?name=€{encodeURIComponent(name)}&background=random&color=fff`;
 
   return (
     <div className="text-sm w-full group">
       <div className="flex items-start gap-2">
-        <img src={displayAvatar} className="w-8 h-8 rounded-lg object-cover mt-1 shrink-0" alt="" />
+        <img 
+          src={displayAvatar} 
+          onClick={onTip}
+          className="w-8 h-8 rounded-lg object-cover mt-1 shrink-0 cursor-pointer hover:ring-2 hover:ring-indigo-500 transition-all" 
+          alt="" 
+        />
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
             <span className="text-[9px] text-neutral-600 font-mono shrink-0">[{timeStr}]</span>
-            <span className={`font-bold ${roleColor} truncate max-w-[100px]`}>
+            <span 
+              onClick={onTip}
+              className={`font-bold €{roleColor} truncate max-w-[100px] cursor-pointer hover:underline`}
+            >
               {name}
             </span>
             {level !== undefined && (
               <span className="text-[8px] bg-neutral-800 text-neutral-500 px-1 rounded font-bold shrink-0">L{level}</span>
             )}
             {role && role !== 'user' && (
-              <span className={`text-[7px] px-1 py-0.5 rounded uppercase font-black tracking-tighter ${bgColor} ${roleColor} shrink-0 border border-current opacity-70`}>
+              <span className={`text-[7px] px-1 py-0.5 rounded uppercase font-black tracking-tighter €{bgColor} €{roleColor} shrink-0 border border-current opacity-70`}>
                 {role}
               </span>
             )}

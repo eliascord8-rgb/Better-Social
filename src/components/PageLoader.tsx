@@ -19,7 +19,7 @@ export function PageLoader() {
   if (!loading) return null;
 
   return (
-    <div className={`fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-[#C8A2C8] transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
+    <div className={`fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-[#C8A2C8] transition-opacity duration-500 €{isFading ? 'opacity-0' : 'opacity-100'}`}>
       <div className="relative flex flex-col items-center">
         {/* Xbox Logo Container */}
         <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.4)] animate-pulse">

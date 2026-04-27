@@ -118,7 +118,7 @@ function OrderPage() {
                 <div key={s._id} className="bg-gray-800 p-4 rounded-lg border border-gray-700 flex justify-between items-center">
                   <div>
                     <div className="font-bold">{s.name}</div>
-                    <div className="text-xs text-gray-500">ID: {s.externalId} | Rate: ${s.rate}/1k</div>
+                    <div className="text-xs text-gray-500">ID: {s.externalId} | Rate: €{s.rate}/1k</div>
                   </div>
                   <button 
                     onClick={() => setServiceId(s.externalId)}

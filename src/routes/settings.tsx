@@ -65,14 +65,14 @@ function SettingsPage() {
 
         <form onSubmit={handleSave} className="space-y-8 bg-neutral-900/50 border border-neutral-800 p-8 rounded-3xl backdrop-blur-xl">
           {message.text && (
-            <div className={`p-4 rounded-xl text-sm font-bold text-center ${message.type === 'success' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
+            <div className={`p-4 rounded-xl text-sm font-bold text-center €{message.type === 'success' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
               {message.text}
             </div>
           )}
 
           <div className="flex items-center gap-8">
             <img 
-              src={profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent((user as any)?.username || 'User')}&background=random&size=128`} 
+              src={profilePicture || `https://ui-avatars.com/api/?name=€{encodeURIComponent((user as any)?.username || 'User')}&background=random&size=128`} 
               className="w-32 h-32 rounded-3xl object-cover border-4 border-neutral-800 shadow-2xl"
               alt="Avatar Preview"
             />

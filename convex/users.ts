@@ -122,6 +122,60 @@ export const updateProfile = mutation({
   },
 });
 
+export const tip = mutation({
+  args: {
+    senderId: v.id("users"),
+    receiverUsername: v.string(),
+    amount: v.number(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const sender = await ctx.db.get(args.senderId);
+    if (!sender) throw new Error("Sender not found");
+
+    if (sender.balance < args.amount) {
+      throw new Error("Insufficient balance");
+    }
+
+    const receiver = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", args.receiverUsername))
+      .first();
+    
+    if (!receiver) throw new Error("Receiver not found");
+    if (receiver._id === sender._id) throw new Error("Cannot tip yourself");
+
+    await ctx.db.patch(sender._id, { balance: sender.balance - args.amount });
+    await ctx.db.patch(receiver._id, { balance: receiver.balance + args.amount });
+
+    await ctx.db.insert("messages", {
+      username: "SYSTEM",
+      role: "admin",
+      content: `${sender.username} tipped €${args.amount.toFixed(2)} to ${receiver.username}! 💸`,
+      channel: "community",
+      level: 99
+    });
+
+    await ctx.db.insert("transactions", {
+      userId: sender._id,
+      amount: -args.amount,
+      type: "tip_sent",
+      description: `Tipped ${receiver.username}`,
+      status: "completed"
+    });
+
+    await ctx.db.insert("transactions", {
+      userId: receiver._id,
+      amount: args.amount,
+      type: "tip_received",
+      description: `Received tip from ${sender.username}`,
+      status: "completed"
+    });
+
+    return null;
+  },
+});
+
 export const getUserByApiKey = query({
   args: { apiKey: v.string() },
   returns: v.any(),

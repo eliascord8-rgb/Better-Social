@@ -34,7 +34,7 @@ function IRCChat() {
     if (!chatInput.trim()) return
 
     if (me.muteUntil && me.muteUntil > Date.now()) {
-      alert(`You are muted until ${new Date(me.muteUntil).toLocaleString()}`)
+      alert(`You are muted until €{new Date(me.muteUntil).toLocaleString()}`)
       return
     }
 
@@ -71,7 +71,7 @@ function IRCChat() {
       </div>
 
       {/* Sidebar */}
-      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 €{isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="hidden md:flex items-center gap-3 px-2">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-black rounded-sm rotate-45" />
@@ -122,14 +122,14 @@ function IRCChat() {
                 <div key={msg._id} className="flex gap-2 items-baseline">
                   <span className="text-neutral-600 shrink-0">[{new Date(msg._creationTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]</span>
                   <div className="flex items-center gap-1 shrink-0">
-                    <span className={`font-bold ${msg.role === 'owner' || msg.role === 'admin' ? 'text-red-500' : msg.role === 'moderator' ? 'text-green-500' : 'text-indigo-400'}`}>
+                    <span className={`font-bold €{msg.role === 'owner' || msg.role === 'admin' ? 'text-red-500' : msg.role === 'moderator' ? 'text-green-500' : 'text-indigo-400'}`}>
                       &lt;{msg.username}&gt;
                     </span>
                     {msg.level !== undefined && (
                       <span className="text-[9px] bg-neutral-800 text-neutral-500 px-1 rounded border border-white/5 font-bold">L{msg.level}</span>
                     )}
                     {msg.role && msg.role !== 'user' && (
-                      <span className={`text-[8px] px-1 rounded uppercase font-black tracking-tighter border ${msg.role === 'owner' || msg.role === 'admin' ? 'text-red-500 border-red-500/20 bg-red-500/5' : 'text-green-500 border-green-500/20 bg-green-500/5'}`}>
+                      <span className={`text-[8px] px-1 rounded uppercase font-black tracking-tighter border €{msg.role === 'owner' || msg.role === 'admin' ? 'text-red-500 border-red-500/20 bg-red-500/5' : 'text-green-500 border-green-500/20 bg-green-500/5'}`}>
                         {msg.role}
                       </span>
                     )}
@@ -141,7 +141,7 @@ function IRCChat() {
             </div>
             
             <div className="relative">
-              <span className="absolute left-4 top-2.5 text-indigo-500 font-bold font-mono text-sm">$</span>
+              <span className="absolute left-4 top-2.5 text-indigo-500 font-bold font-mono text-sm">€</span>
               <input 
                 type="text" 
                 value={chatInput}

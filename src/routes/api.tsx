@@ -55,7 +55,7 @@ function APIAccessPage() {
       </div>
 
       {/* Sidebar */}
-      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 €{isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="hidden md:flex items-center gap-3 px-2">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-black rounded-sm rotate-45" />
@@ -134,7 +134,7 @@ function APIAccessPage() {
                       <div className="text-neutral-500 mb-1">// Request Body (Place Order)</div>
                       <pre className="text-indigo-300">
 {`{
-  "key": "${me.apiKey || 'YOUR_API_KEY'}",
+  "key": "€{me.apiKey || 'YOUR_API_KEY'}",
   "action": "add",
   "service": "1",
   "link": "https://instagram.com/p/...",

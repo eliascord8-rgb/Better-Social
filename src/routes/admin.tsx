@@ -82,7 +82,7 @@ function AdminPanel() {
     setIsSendingMail(true)
     try {
       const res = await mailAll({ subject: mailSubject, message: mailMessage })
-      alert(`Sent to ${res.sentCount} users. ${res.error ? 'Error: ' + res.error : ''}`)
+      alert(`Sent to €{res.sentCount} users. €{res.error ? 'Error: ' + res.error : ''}`)
       setMailSubject('')
       setMailMessage('')
     } catch (err: any) {
@@ -123,7 +123,7 @@ function AdminPanel() {
       </div>
 
       {/* Sidebar */}
-      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <nav className={`fixed inset-y-0 left-0 z-[90] w-64 border-r border-neutral-900 flex flex-col p-6 gap-8 bg-neutral-950/95 backdrop-blur-xl shrink-0 transform transition-transform duration-300 md:relative md:translate-x-0 €{isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="hidden md:flex items-center gap-3 px-2">
           <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-white rounded-sm rotate-45" />
@@ -139,37 +139,37 @@ function AdminPanel() {
             <>
               <button 
                 onClick={() => { setActiveTab('users'); setIsSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${activeTab === 'users' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all €{activeTab === 'users' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
               >
                 User Management
               </button>
               <button 
                 onClick={() => { setActiveTab('transactions'); setIsSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${activeTab === 'transactions' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all €{activeTab === 'transactions' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
               >
                 Transactions {pendingTxs.length > 0 && <span className="ml-auto bg-indigo-500 text-[10px] px-1.5 rounded-full">{pendingTxs.length}</span>}
               </button>
               <button 
                 onClick={() => { setActiveTab('mail'); setIsSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${activeTab === 'mail' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all €{activeTab === 'mail' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
               >
                 Mass Mail
               </button>
               <button
                 onClick={() => { setActiveTab('smm'); setIsSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${activeTab === 'smm' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all €{activeTab === 'smm' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
               >
                 SMM API Sync
               </button>
               <button
                 onClick={() => { setActiveTab('coupons'); setIsSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${activeTab === 'coupons' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all €{activeTab === 'coupons' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
               >
                 Coupon Generator
               </button>
               <button
                 onClick={() => { setActiveTab('payments'); setIsSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${activeTab === 'payments' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all €{activeTab === 'payments' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
               >
                 Payment Methods
               </button>
@@ -178,7 +178,7 @@ function AdminPanel() {
 
           <button 
             onClick={() => { setActiveTab('support'); setIsSidebarOpen(false); }}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${activeTab === 'support' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all €{activeTab === 'support' ? 'bg-white/5 text-white border border-white/10' : 'text-neutral-400 hover:text-white'}`}
           >
             Support Chat {activeThreads.length > 0 && <span className="ml-auto bg-green-500 text-[10px] px-1.5 rounded-full">{activeThreads.length}</span>}
           </button>
@@ -237,7 +237,7 @@ function AdminPanel() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                           <span className="text-indigo-400 font-black">${u.balance.toFixed(2)}</span>
+                           <span className="text-indigo-400 font-black">€{u.balance.toFixed(2)}</span>
                            <button 
                             onClick={() => {
                               const amt = prompt('Amount to add (use negative to subtract):')
@@ -320,7 +320,7 @@ function AdminPanel() {
                       pendingTxs.map(tx => (
                         <tr key={tx._id} className="hover:bg-white/5 transition-all">
                           <td className="px-6 py-4">
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${tx.type === 'deposit' ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
+                            <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase €{tx.type === 'deposit' ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
                               {tx.type}
                             </span>
                           </td>
@@ -335,8 +335,8 @@ function AdminPanel() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex flex-col">
-                              <span className="text-sm font-black text-white">${tx.amount.toFixed(2)}</span>
-                              {tx.bonus && <span className="text-[8px] text-indigo-400 font-bold">Bonus: +${tx.bonus.toFixed(2)}</span>}
+                              <span className="text-sm font-black text-white">€{tx.amount.toFixed(2)}</span>
+                              {tx.bonus && <span className="text-[8px] text-indigo-400 font-bold">Bonus: +€{tx.bonus.toFixed(2)}</span>}
                             </div>
                           </td>
                           <td className="px-6 py-4 text-right">
@@ -463,7 +463,7 @@ function AdminPanel() {
                     setIsSyncing(true)
                     try {
                       const res = await syncSmmServices({})
-                      if (res.success) alert(`Synced ${res.count} services!`)
+                      if (res.success) alert(`Synced €{res.count} services!`)
                       else alert('Error: ' + res.error)
                     } finally {
                       setIsSyncing(false)
@@ -483,7 +483,7 @@ function AdminPanel() {
                 <h2 className="text-xl font-black uppercase tracking-tighter italic">Generate Gift Card</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[10px] font-black text-neutral-500 uppercase mb-2">Coupon Amount ($)</label>
+                    <label className="block text-[10px] font-black text-neutral-500 uppercase mb-2">Coupon Amount (€)</label>
                     <input 
                       type="number" 
                       value={couponAmount}
@@ -498,7 +498,7 @@ function AdminPanel() {
                       setIsGeneratingCoupon(true)
                       try {
                         const code = await generateCoupon({ adminId: me._id, amount: couponAmount })
-                        alert(`Coupon Generated: ${code}`)
+                        alert(`Coupon Generated: €{code}`)
                       } catch (err: any) {
                         alert(err.message)
                       } finally {
@@ -519,7 +519,7 @@ function AdminPanel() {
                     <div key={coupon._id} className="p-4 bg-black border border-neutral-800 rounded-xl flex justify-between items-center group">
                       <div>
                         <div className="font-mono text-indigo-400 font-bold">{coupon.code}</div>
-                        <div className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest">${coupon.amount.toFixed(2)}</div>
+                        <div className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest">€{coupon.amount.toFixed(2)}</div>
                       </div>
                       <div className="text-right">
                         {coupon.isUsed ? (
@@ -548,7 +548,7 @@ function AdminPanel() {
                       <button 
                         key={thread._id}
                         onClick={() => setSelectedThreadId(thread._id)}
-                        className={`w-full p-4 text-left hover:bg-white/5 transition-all ${selectedThreadId === thread._id ? 'bg-white/5 border-l-4 border-indigo-500' : ''}`}
+                        className={`w-full p-4 text-left hover:bg-white/5 transition-all €{selectedThreadId === thread._id ? 'bg-white/5 border-l-4 border-indigo-500' : ''}`}
                       >
                         <div className="flex justify-between items-start mb-1">
                           <span className="font-bold text-white text-sm">{thread.username}</span>
@@ -581,7 +581,7 @@ function AdminPanel() {
                       </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black/20">
                            {threadMessages.map((msg: any) => (
-                             <div key={msg._id} className={`max-w-[80%] rounded-2xl p-4 ${msg.role === 'admin' ? 'bg-indigo-600/20 border border-indigo-500/30 self-end text-right' : 'bg-neutral-800 self-start'}`}>
+                             <div key={msg._id} className={`max-w-[80%] rounded-2xl p-4 €{msg.role === 'admin' ? 'bg-indigo-600/20 border border-indigo-500/30 self-end text-right' : 'bg-neutral-800 self-start'}`}>
                                 <div className="flex items-center gap-2 mb-1 justify-inherit">
                                   <span className="text-[10px] font-black uppercase text-neutral-400">{msg.senderName}</span>
                                   <span className="text-[8px] text-neutral-600">{new Date(msg._creationTime).toLocaleTimeString()}</span>
@@ -621,7 +621,7 @@ function AdminPanel() {
                     return (
                       <div key={provider} className="flex items-center justify-between p-4 bg-black border border-neutral-800 rounded-xl">
                         <div className="flex items-center gap-3">
-                          <div className={`w-3 h-3 rounded-full ${cfg?.isActive ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-neutral-800'}`} />
+                          <div className={`w-3 h-3 rounded-full €{cfg?.isActive ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-neutral-800'}`} />
                           <span className="font-black uppercase tracking-widest text-sm italic">{provider}</span>
                         </div>
                         <button
