@@ -105,6 +105,23 @@ export const updateUserPassword = mutation({
   },
 });
 
+export const updateProfile = mutation({
+  args: {
+    userId: v.id("users"),
+    profilePicture: v.optional(v.string()),
+    password: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const patch: any = {};
+    if (args.profilePicture !== undefined) patch.profilePicture = args.profilePicture;
+    if (args.password !== undefined) patch.password = args.password;
+    
+    await ctx.db.patch(args.userId, patch);
+    return null;
+  },
+});
+
 export const getUserByApiKey = query({
   args: { apiKey: v.string() },
   returns: v.any(),
