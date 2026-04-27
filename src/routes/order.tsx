@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
+import { useQuery } from 'convex/react'
 import { useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import type { Id } from '../../convex/_generated/dataModel'
@@ -13,16 +12,19 @@ export const Route = createFileRoute('/order')({
 function OrderPage() {
   const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const navigate = useNavigate()
-  const { data: me } = useSuspenseQuery(convexQuery(api.users.getMe, { userId: userId ?? undefined }))
+  
+  // Use standard useQuery for now to bypass complex TanStack Query typing issues during build
+  const me = useQuery(api.users.getMe, { userId: userId ?? undefined })
+  const categories = useQuery((api.smm as any).getCategories, {})
   
   const [selectedCategory, setSelectedCategory] = React.useState<string>('')
   const [selectedServiceId, setSelectedServiceId] = React.useState<string>('')
   const [targetUrl, setTargetUrl] = React.useState('')
   const [quantity, setQuantity] = React.useState<string>('0')
 
-  const { data: categories } = useSuspenseQuery(convexQuery((api.smm as any).getCategories, {}))
-  const { data: filteredServices } = useSuspenseQuery(
-    convexQuery((api.smm as any).getServicesByCategory, { category: selectedCategory || '___NONE___' })
+  const filteredServices = useQuery(
+    (api.smm as any).getServicesByCategory, 
+    { category: selectedCategory || '___NONE___' }
   )
   
   const placeOrder = useMutation(api.smm.placeOrder)
@@ -61,6 +63,8 @@ function OrderPage() {
       alert(err.message)
     }
   }
+
+  if (!me) return <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">Loading...</div>
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col md:flex-row overflow-x-hidden">
