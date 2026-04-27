@@ -10,7 +10,6 @@ export const getActiveConfigs = query({
     _id: v.id("paymentConfigs"),
     provider: v.string(),
     isActive: v.boolean(),
-    // We don't return the secret config to the client for security
   })),
   handler: async (ctx) => {
     const configs = await ctx.db
@@ -42,13 +41,7 @@ export const getAdminConfigs = query({
  */
 export const saveConfig = mutation({
   args: {
-    provider: v.union(
-      v.literal("paypal"), 
-      v.literal("payeer"), 
-      v.literal("coinpayments"), 
-      v.literal("stripe"),
-      v.literal("skrill")
-    ),
+    provider: v.union(v.literal("paypal"), v.literal("payeer"), v.literal("coinpayments"), v.literal("stripe"), v.literal("skrill")),
     config: v.record(v.string(), v.string()),
     isActive: v.boolean(),
   },
@@ -56,7 +49,7 @@ export const saveConfig = mutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("paymentConfigs")
-      .withIndex("by_provider", (q) => q.eq("provider", args.provider))
+      .withIndex("by_provider", (q) => q.eq("provider", args.provider as any))
       .unique();
 
     if (existing) {
@@ -66,7 +59,7 @@ export const saveConfig = mutation({
       });
     } else {
       await ctx.db.insert("paymentConfigs", {
-        provider: args.provider,
+        provider: args.provider as any,
         config: args.config,
         isActive: args.isActive,
       });

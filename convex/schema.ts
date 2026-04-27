@@ -113,7 +113,8 @@ export default defineSchema({
     .index("by_category", ["category"]),
 
   paymentConfigs: defineTable({
-    provider: v.union(v.literal("paypal"), v.literal("payeer"), v.literal("coinpayments"), v.literal("stripe")),
+    // Added skrill to providers
+    provider: v.union(v.literal("paypal"), v.literal("payeer"), v.literal("coinpayments"), v.literal("stripe"), v.literal("skrill")),
     config: v.record(v.string(), v.string()), // Keys like clientId, secret, merchantId, ipnSecret etc.
     isActive: v.boolean(),
   }).index("by_provider", ["provider"]),

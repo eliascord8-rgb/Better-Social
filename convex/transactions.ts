@@ -9,7 +9,7 @@ export const deposit = mutation({
   args: {
     userId: v.id("users"),
     amount: v.number(),
-    method: v.string(), // "DEMO", "PAYPAL", etc.
+    method: v.string(), // "PAYPAL", etc.
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -21,29 +21,14 @@ export const deposit = mutation({
       bonus = args.amount * 0.4;
     }
 
-    const totalToCredit = args.amount + bonus;
-    const status = "pending";
-
     await ctx.db.insert("transactions", {
       userId: args.userId,
       type: "deposit",
       amount: args.amount,
-      status: status,
+      status: "pending",
       method: args.method,
       bonus: bonus > 0 ? bonus : undefined,
     });
-
-    if (status === "completed") {
-      await ctx.db.patch(args.userId, {
-        balance: (user.balance || 0) + totalToCredit,
-      });
-      // Global broadcast for deposit
-      await ctx.db.insert("notifications", {
-        type: "deposit",
-        username: user.username,
-        content: args.amount.toString(),
-      });
-    }
 
     return null;
   },

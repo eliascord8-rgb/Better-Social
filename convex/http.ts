@@ -1,6 +1,6 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 
 const http = httpRouter();
 
@@ -32,7 +32,7 @@ http.route({
       if (action === "add") {
         // Validate service
         const services = await ctx.runQuery(api.smm.getServices, {});
-        const selectedService = services.find((s: any) => s.id === service);
+        const selectedService = services.find((s: any) => s.id === service || s.externalId === service);
 
         if (!selectedService) {
           return new Response(JSON.stringify({ error: "Invalid Service ID" }), {
@@ -55,7 +55,6 @@ http.route({
           serviceId: service,
           quantity: quantity,
           targetUrl: link,
-          cost: cost,
         });
 
         return new Response(JSON.stringify({ order: orderId, status: "success" }), {
@@ -99,23 +98,14 @@ http.route({
     // Payeer IPN Logic
     const formData = await request.formData();
     const m_operation_id = formData.get("m_operation_id") as string;
-    const m_operation_ps = formData.get("m_operation_ps") as string;
-    const m_operation_date = formData.get("m_operation_date") as string;
-    const m_operation_pay_date = formData.get("m_operation_pay_date") as string;
-    const m_shop = formData.get("m_shop") as string;
     const m_orderid = formData.get("m_orderid") as string;
     const m_amount = formData.get("m_amount") as string;
-    const m_curr = formData.get("m_curr") as string;
-    const m_desc = formData.get("m_desc") as string;
     const m_status = formData.get("m_status") as string;
-    const m_sign = formData.get("m_sign") as string;
 
     if (m_status === "success") {
-      // In a real app, verify m_sign with your secret key
-      // and check m_amount / m_curr
       // Extract userId from m_orderid (e.g. "USER_ID:12345")
       const userId = m_orderid.split(":")[1] as any;
-      await ctx.runMutation(api.payments.processPayment, {
+      await ctx.runMutation(internal.payments.processPayment, {
         userId,
         amount: parseFloat(m_amount),
         provider: "payeer",
@@ -139,7 +129,7 @@ http.route({
       const customId = resource.custom_id; // Pass userId here when creating order
       const userId = customId as any;
 
-      await ctx.runMutation(api.payments.processPayment, {
+      await ctx.runMutation(internal.payments.processPayment, {
         userId,
         amount,
         provider: "paypal",
@@ -162,7 +152,7 @@ http.route({
 
     if (status === "2") { // 2 = Processed
       const userId = userIdStr as any;
-      await ctx.runMutation(api.payments.processPayment, {
+      await ctx.runMutation(internal.payments.processPayment, {
         userId,
         amount: parseFloat(mb_amount),
         provider: "skrill",
@@ -185,7 +175,7 @@ http.route({
 
     if (status >= 100 || status === 2) { // Completed
       const userId = userIdStr as any;
-      await ctx.runMutation(api.payments.processPayment, {
+      await ctx.runMutation(internal.payments.processPayment, {
         userId,
         amount: parseFloat(amount1),
         provider: "coinpayments",
