@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as OrderRouteImport } from './routes/order'
 import { Route as IrcRouteImport } from './routes/irc'
 import { Route as FundsRouteImport } from './routes/funds'
@@ -17,6 +18,11 @@ import { Route as ApiRouteImport } from './routes/api'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrderRoute = OrderRouteImport.update({
   id: '/order',
   path: '/order',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/funds': typeof FundsRoute
   '/irc': typeof IrcRoute
   '/order': typeof OrderRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/funds': typeof FundsRoute
   '/irc': typeof IrcRoute
   '/order': typeof OrderRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/funds': typeof FundsRoute
   '/irc': typeof IrcRoute
   '/order': typeof OrderRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,8 +100,17 @@ export interface FileRouteTypes {
     | '/funds'
     | '/irc'
     | '/order'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/api' | '/dashboard' | '/funds' | '/irc' | '/order'
+  to:
+    | '/'
+    | '/admin'
+    | '/api'
+    | '/dashboard'
+    | '/funds'
+    | '/irc'
+    | '/order'
+    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -102,6 +120,7 @@ export interface FileRouteTypes {
     | '/funds'
     | '/irc'
     | '/order'
+    | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -112,10 +131,18 @@ export interface RootRouteChildren {
   FundsRoute: typeof FundsRoute
   IrcRoute: typeof IrcRoute
   OrderRoute: typeof OrderRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/order': {
       id: '/order'
       path: '/order'
@@ -176,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   FundsRoute: FundsRoute,
   IrcRoute: IrcRoute,
   OrderRoute: OrderRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

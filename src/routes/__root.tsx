@@ -6,14 +6,12 @@ import {
 } from '@tanstack/react-router'
 import React from 'react'
 
-// Fix for "React is not defined" error in some environments
 if (typeof window !== 'undefined') {
   ;(window as any).React = React
 }
 
 import type { QueryClient } from '@tanstack/react-query'
 import { BetterSocialBroadcaster } from '../components/BetterSocialBroadcaster'
-import { PageLoader } from '../components/PageLoader'
 import appCss from '~/styles/app.css?url'
 
 export const Route = createRootRouteWithContext<{
@@ -21,16 +19,9 @@ export const Route = createRootRouteWithContext<{
 }>()({
   head: () => ({
     meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'Better Social - Premium SMM Services',
-      },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Better Social - Premium SMM Services' },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
@@ -44,7 +35,6 @@ export const Route = createRootRouteWithContext<{
 function RootComponent() {
   return (
     <RootDocument>
-      {/* Removed PageLoader temporarily to verify app functionality */}
       <React.Suspense>
         <BetterSocialBroadcaster />
       </React.Suspense>
