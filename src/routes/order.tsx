@@ -11,7 +11,7 @@ export const Route = createFileRoute("/order")({
 
 function OrderPage() {
   const navigate = useNavigate();
-  const user = useQuery(api.users.getMe);
+  const user = useQuery(api.users.getMe, {});
   const placeOrder = useMutation(api.smm.placeOrder);
   
   // State for manual input
@@ -22,7 +22,7 @@ function OrderPage() {
 
   // We still query services just to show a helpful list if they exist, 
   // but we don't depend on them for the form to work.
-  const activeServices = useQuery(api.smm.getServices) || [];
+  const activeServices = useQuery(api.smm.getServices, {}) || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
