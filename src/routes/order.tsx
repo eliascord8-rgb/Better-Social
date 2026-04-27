@@ -10,8 +10,9 @@ export const Route = createFileRoute("/order")({
 });
 
 function OrderPage() {
+  const userId = typeof window !== 'undefined' ? localStorage.getItem('bq_user_id') as Id<'users'> : null
   const navigate = useNavigate();
-  const user = useQuery(api.users.getMe, {});
+  const user = useQuery(api.users.getMe, { userId: userId ?? undefined });
   const placeOrder = useMutation(api.smm.placeOrder);
   
   // State for manual input
@@ -27,7 +28,7 @@ function OrderPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert("Please login first");
+      alert("Please login first or refresh the page");
       return;
     }
 
