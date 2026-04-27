@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { toast } from "react-hot-toast";
+// Removed react-hot-toast import for build stability
+// import { toast } from "react-hot-toast";
 
 export const Route = createFileRoute("/order")({
   component: OrderPage,
@@ -26,12 +27,12 @@ function OrderPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      toast.error("Please login first");
+      alert("Please login first");
       return;
     }
 
     if (!serviceId || !targetUrl || quantity <= 0) {
-      toast.error("Please fill all fields correctly");
+      alert("Please fill all fields correctly");
       return;
     }
 
@@ -43,10 +44,10 @@ function OrderPage() {
         quantity,
         targetUrl: targetUrl.trim(),
       });
-      toast.success("Order placed successfully!");
+      alert("Order placed successfully!");
       navigate({ to: "/dashboard" });
     } catch (error: any) {
-      toast.error(error.message || "Failed to place order");
+      alert(error.message || "Failed to place order");
     } finally {
       setIsSubmitting(false);
     }
