@@ -104,12 +104,21 @@ export const listAllServices = query({
   args: {},
   returns: v.array(v.any()),
   handler: async (ctx) => {
-    // We can't collect all 10,000 services at once due to Convex limits.
-    // For admin list, we take the first 1000 or paginate if needed.
-    // However, usually owners only care about the first few or need a search.
-    // Let's limit it to 1000 for safety.
+    // Show 1000 services for admin list
     return await ctx.db.query("services").order("desc").take(1000);
   },
+});
+
+export const getStats = query({
+  args: {},
+  returns: v.object({ total: v.number(), visible: v.number() }),
+  handler: async (ctx) => {
+    const all = await ctx.db.query("services").collect();
+    return {
+      total: all.length,
+      visible: all.filter(s => (s as any).isVisible).length
+    };
+  }
 });
 
 export const updateServiceSettings = mutation({
@@ -150,13 +159,22 @@ export const syncServices = action({
       const data: any = await response.json();
       if (!Array.isArray(data)) return { success: false, count: 0, error: "Invalid response format" };
 
-      const chunkSize = 100;
+      // Log start
+      console.log(`Starting sync for ${data.length} services...`);
+
+      const chunkSize = 50; // Smaller chunks for more reliability
+      let successCount = 0;
       for (let i = 0; i < data.length; i += chunkSize) {
         const chunk = data.slice(i, i + chunkSize);
-        await ctx.runMutation(internal.smm.syncServicesBatch, { services: chunk });
+        try {
+          await ctx.runMutation(internal.smm.syncServicesBatch, { services: chunk });
+          successCount += chunk.length;
+        } catch (e: any) {
+          console.error(`Failed chunk ${i}: ${e.message}`);
+        }
       }
 
-      return { success: true, count: data.length };
+      return { success: true, count: successCount };
     } catch (err: any) {
       return { success: false, count: 0, error: err.message };
     }
@@ -169,6 +187,8 @@ export const syncServicesBatch = internalMutation({
   handler: async (ctx, args) => {
     for (const s of args.services) {
       const externalId = (s.service || s.id || "").toString();
+      if (!externalId) continue;
+
       const existing = await ctx.db
         .query("services")
         .withIndex("by_externalId", (q) => q.eq("externalId", externalId))
@@ -176,15 +196,16 @@ export const syncServicesBatch = internalMutation({
 
       const serviceData = {
         externalId,
-        name: s.name || "Unnamed Service",
+        name: s.name || s.service_name || "Unnamed Service",
         category: s.category || "General",
         rate: parseFloat(s.rate || "0"),
-        min: parseInt(s.min || "0"),
-        max: parseInt(s.max || "0"),
+        min: parseInt(s.min || s.min_quantity || "0"),
+        max: parseInt(s.max || s.max_quantity || "0"),
         type: s.type || "Default",
       };
 
       if (existing) {
+        // Only patch rate/min/max/name to keep visibility settings
         await ctx.db.patch(existing._id, serviceData);
       } else {
         await ctx.db.insert("services", {
